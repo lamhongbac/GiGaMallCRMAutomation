@@ -1,21 +1,31 @@
 ﻿using CRM.Automation.Core.Models;
-using CRM.Automation.Core.Models.Requests;
 
 namespace CRM.Automation.Core.Interfaces;
 
 public interface IBurnPointService
 {
-    Task<BOProcessResult> ExecuteReminderAsync(BurnPointReminderRequest request, CancellationToken ct = default);
+    Task<BOProcessResult> ExecuteReminderAsync(
+        string executionId = "",
+        int resetPointYears = 2,
+        int remindDay = 30,
+        int batchSize = 500,
+        CancellationToken ct = default);
 }
 
 public interface IResetPointService
 {
-    Task<BOProcessResult> ExecuteResetPointAsync(ResetPointRequest request, CancellationToken ct = default);
+    Task<BOProcessResult> ExecuteResetPointAsync(
+        string executionId = "",
+        int batchSize = 500,
+        CancellationToken ct = default);
 }
 
 public interface IMemberTierService
 {
-    Task<BOProcessResult> ExecuteDowngradeAsync(DowngradeMembershipRequest request, CancellationToken ct = default);
+    Task<BOProcessResult> ExecuteDowngradeAsync(
+        string executionId = "",
+        int evaluationPeriodMonths = 12,
+        CancellationToken ct = default);
 }
 
 public interface IFirebasePushService

@@ -1,6 +1,67 @@
-@CRM.Automation.Api_HostAddress = http://localhost:5242
+﻿@HostAddress = http://localhost:5000
+@ApiKey = GigaMall-CheckPoint-SecretKey-2026
 
-GET {{CRM.Automation.Api_HostAddress}}/weatherforecast/
+### 1. Test Health Check (Kiểm tra tình trạng Service đang online)
+GET {{HostAddress}}/api/tasks/health
 Accept: application/json
 
 ###
+
+### 2. Test Bảo mật: Gọi API KHÔNG CÓ Header x-Api-Key (Kỳ vọng: 401 Unauthorized)
+POST {{HostAddress}}/api/tasks/burn-point-reminder
+Content-Type: application/json
+
+{
+  "ExecutionId": "TEST-NO-AUTH"
+}
+
+###
+
+### 3. Test Bảo mật: Gọi API với Key SAI (Kỳ vọng: 401 Unauthorized)
+POST {{HostAddress}}/api/tasks/burn-point-reminder
+Content-Type: application/json
+x-Api-Key: SaiMatKhauRoi123
+
+{
+  "ExecutionId": "TEST-WRONG-AUTH"
+}
+
+###
+
+### 4. MANUAL TEST: Kích hoạt Task Nhắc nhở cháy điểm (Burn Point Reminder)
+# Chế độ SimulatePush=true trong appsettings.json đảm bảo KHÔNG bắn tin thật ra máy khách hàng
+POST {{HostAddress}}/api/tasks/burn-point-reminder
+Content-Type: application/json
+x-Api-Key: {{ApiKey}}
+
+{
+  "ExecutionId": "MANUAL-TEST-BURN-001",
+  "TaskCode": "BURN_POINT_REMINDER",
+  "TriggerBy": "ManualDeveloperTest"
+}
+
+###
+
+### 5. MANUAL TEST: Kích hoạt Task Chốt & Hủy điểm hết hạn (Reset Point)
+POST {{HostAddress}}/api/tasks/reset-point
+Content-Type: application/json
+x-Api-Key: {{ApiKey}}
+
+{
+  "ExecutionId": "MANUAL-TEST-RESET-001",
+  "TaskCode": "RESET_POINT",
+  "TriggerBy": "ManualDeveloperTest"
+}
+
+###
+
+### 6. MANUAL TEST: Kích hoạt Task Hạ hạng hội viên (Downgrade Membership)
+POST {{HostAddress}}/api/tasks/downgrade-membership
+Content-Type: application/json
+x-Api-Key: {{ApiKey}}
+
+{
+  "ExecutionId": "MANUAL-TEST-DOWNGRADE-001",
+  "TaskCode": "DOWNGRADE_MEMBERSHIP",
+  "TriggerBy": "ManualDeveloperTest"
+}

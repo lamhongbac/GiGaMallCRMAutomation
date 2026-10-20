@@ -1,8 +1,9 @@
 ﻿namespace CRM.Automation.Core.Models.Requests;
 
-public class BurnPointReminderRequest
+/// <summary>
+/// Request kích hoạt tác vụ Nhắc nhở cháy điểm từ CheckPoint.
+/// Chỉ chứa tham số phi nghiệp vụ (ExecutionId, TaskCode, TriggerTime, TriggerBy).
+/// </summary>
+public class BurnPointReminderRequest : CheckPointTaskRequest
 {
-    public int ResetPointYears { get; set; } = 2;
-    public int RemindDay { get; set; } = 30;
-    public int BatchSize { get; set; } = 500;
 }

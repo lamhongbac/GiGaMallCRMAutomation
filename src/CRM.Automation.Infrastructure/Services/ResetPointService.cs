@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics;
 using CRM.Automation.Core.Interfaces;
 using CRM.Automation.Core.Models;
-using CRM.Automation.Core.Models.Requests;
+using CRM.Automation.Core.Models.DTOs;
 using CRM.Automation.Infrastructure.Data;
 using Microsoft.Extensions.Logging;
 
@@ -13,27 +13,34 @@ public class ResetPointService : IResetPointService
     private readonly IFirebasePushService _pushService;
     private readonly ILogger<ResetPointService> _logger;
 
-    public ResetPointService(BurnPointRepository repository, IFirebasePushService pushService, ILogger<ResetPointService> logger)
+    public ResetPointService(
+        BurnPointRepository repository, 
+        IFirebasePushService pushService, 
+        ILogger<ResetPointService> logger)
     {
         _repository = repository;
         _pushService = pushService;
         _logger = logger;
     }
 
-    public async Task<BOProcessResult> ExecuteResetPointAsync(ResetPointRequest request, CancellationToken ct = default)
+    public async Task<BOProcessResult> ExecuteResetPointAsync(
+        string executionId = "", 
+        int batchSize = 500, 
+        CancellationToken ct = default)
     {
         var sw = Stopwatch.StartNew();
-        _logger.LogInformation(">>> BẮT ĐẦU CHẠY TASK RESET POINT (HỦY ĐIỂM HẾT HẠN) <<<");
+        _logger.LogInformation(">>> BẮT ĐẦU CHẠY TASK RESET POINT [{ExecutionId}] (HỦY ĐIỂM HẾT HẠN): BatchSize={BatchSize} <<<", 
+            executionId, batchSize);
 
         try
         {
             var threshold = DateTime.Today.AddDays(1);
             var pendingPoints = await _repository.GetPendingBurnPointsAsync(threshold, ct);
-            _logger.LogInformation("Tìm thấy {Count} bản ghi đang Pending đến hạn cần xử lý.", pendingPoints.Count);
+            _logger.LogInformation("[{ExecutionId}] Tìm thấy {Count} bản ghi đang Pending đến hạn cần xử lý.", executionId, pendingPoints.Count);
 
             if (pendingPoints.Count == 0)
             {
-                return BOProcessResult.Success(new { processed = 0 }, "Không có điểm hết hạn cần hủy hôm nay.");
+                return BOProcessResult.Success(new { executionId, processed = 0 }, "Không có điểm hết hạn cần hủy hôm nay.");
             }
 
             int canceledCount = 0;
@@ -56,7 +63,8 @@ public class ResetPointService : IResetPointService
                     // Khách đã mua sắm -> HỦY LỆNH XÓA ĐIỂM (Cứu điểm cho khách)
                     await _repository.UpdateBurnStatusAsync(item.ID, status: "Cancel", isBurn: false, isCancel: true, ct: ct);
                     canceledCount++;
-                    _logger.LogInformation("Hội viên {MemId} ĐÃ CÓ GIAO DỊCH mới ({Date}) -> Hủy lệnh xóa điểm.", item.MemID, lastTrans?.TransDate);
+                    _logger.LogInformation("[{ExecutionId}] Hội viên {MemId} ĐÃ CÓ GIAO DỊCH mới ({Date}) -> Hủy lệnh xóa điểm.", 
+                        executionId, item.MemID, lastTrans?.TransDate);
                 }
                 else if (item.ExpectedBurnDate <= DateTime.Today)
                 {
@@ -73,20 +81,23 @@ public class ResetPointService : IResetPointService
             }
 
             sw.Stop();
-            _logger.LogInformation(">>> HOÀN TẤT TASK RESET POINT: Hủy bỏ xóa={Canceled}, Thực tế đã trừ điểm={Burned} trong {Elapsed}ms <<<", canceledCount, burnedCount, sw.ElapsedMilliseconds);
+            _logger.LogInformation(">>> [{ExecutionId}] HOÀN TẤT TASK RESET POINT: Hủy bỏ xóa={Canceled}, Thực tế đã trừ điểm={Burned} trong {Elapsed}ms <<<", 
+                executionId, canceledCount, burnedCount, sw.ElapsedMilliseconds);
 
             return BOProcessResult.Success(new
             {
+                executionId,
                 totalEvaluated = pendingPoints.Count,
                 pointsSavedAndCanceled = canceledCount,
                 pointsBurned = burnedCount,
+                batchSize = batchSize,
                 elapsedMilliseconds = sw.ElapsedMilliseconds
             }, $"Đã xử lý xong {pendingPoints.Count} bản ghi (Đã cứu điểm: {canceledCount}, Đã hủy điểm: {burnedCount}).");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lỗi nghiêm trọng khi thực thi ResetPoint");
-            return BOProcessResult.Fail("RESET_POINT_ERROR", $"Lỗi thực thi: {ex.Message}");
+            _logger.LogError(ex, "[{ExecutionId}] Lỗi nghiêm trọng khi thực thi ResetPoint", executionId);
+            return BOProcessResult.Fail($"Lỗi thực thi: {ex.Message}", "RESET_POINT_ERROR");
         }
     }
 }

@@ -2,6 +2,7 @@
 using CRM.Automation.Core.Models;
 using CRM.Automation.Core.Models.Requests;
 using CRM.Automation.Core.Models.DTOs;
+using CRM.Automation.Core.Models.Settings;
 
 namespace CRM.Automation.Tests;
 
@@ -33,15 +34,34 @@ public class CheckPointIntegrationContractTests
     }
 
     [Fact]
-    public void BurnPointReminderRequest_ShouldHaveStandardDefaults()
+    public void CheckPointRequest_ShouldOnlyContainNonBusinessParameters()
     {
-        // Act
-        var request = new BurnPointReminderRequest();
+        // Act: CheckPoint chỉ truyền các tham số tĩnh/phi nghiệp vụ
+        var request = new BurnPointReminderRequest
+        {
+            ExecutionId = "EXEC-2026-001",
+            TaskCode = "TASK_BURN_POINT",
+            TriggerTime = DateTime.UtcNow,
+            TriggerBy = "CheckPointScheduler"
+        };
 
         // Assert
-        Assert.Equal(2, request.ResetPointYears);
-        Assert.Equal(30, request.RemindDay);
-        Assert.Equal(500, request.BatchSize);
+        Assert.Equal("EXEC-2026-001", request.ExecutionId);
+        Assert.Equal("TASK_BURN_POINT", request.TaskCode);
+        Assert.NotNull(request.TriggerTime);
+        Assert.Equal("CheckPointScheduler", request.TriggerBy);
+    }
+
+    [Fact]
+    public void BurnPointSettings_ShouldMaintainStandardBusinessDefaults()
+    {
+        // Act: Các giá trị nghiệp vụ được quản lý tập trung ở appsettings
+        var settings = new BurnPointSettings();
+
+        // Assert
+        Assert.Equal(2, settings.ResetPointYears);
+        Assert.Equal(30, settings.RemindDay);
+        Assert.Equal(500, settings.BatchSize);
     }
 
     [Fact]

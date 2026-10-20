@@ -2,7 +2,6 @@
 using CRM.Automation.Core.Interfaces;
 using CRM.Automation.Core.Models;
 using CRM.Automation.Core.Models.DTOs;
-using CRM.Automation.Core.Models.Requests;
 using CRM.Automation.Infrastructure.Data;
 using Microsoft.Extensions.Logging;
 
@@ -14,32 +13,38 @@ public class BurnPointService : IBurnPointService
     private readonly IFirebasePushService _pushService;
     private readonly ILogger<BurnPointService> _logger;
 
-    public BurnPointService(BurnPointRepository repository, IFirebasePushService pushService, ILogger<BurnPointService> logger)
+    public BurnPointService(
+        BurnPointRepository repository, 
+        IFirebasePushService pushService, 
+        ILogger<BurnPointService> logger)
     {
         _repository = repository;
         _pushService = pushService;
         _logger = logger;
     }
 
-    public async Task<BOProcessResult> ExecuteReminderAsync(BurnPointReminderRequest request, CancellationToken ct = default)
+    public async Task<BOProcessResult> ExecuteReminderAsync(
+        string executionId = "",
+        int resetPointYears = 2,
+        int remindDay = 30,
+        int batchSize = 500,
+        CancellationToken ct = default)
     {
         var sw = Stopwatch.StartNew();
-        _logger.LogInformation(">>> BẮT ĐẦU CHẠY TASK BURN POINT REMINDER: Years={Years}, Days={Days} <<<", request.ResetPointYears, request.RemindDay);
-
-        if (request.ResetPointYears <= 0 || request.RemindDay <= 0)
-        {
-            return BOProcessResult.Fail("INVALID_ARGUMENTS", "Tham số ResetPointYears và RemindDay phải lớn hơn 0.");
-        }
+        _logger.LogInformation(">>> BẮT ĐẦU CHẠY TASK BURN POINT REMINDER [{ExecutionId}]: Years={Years}, Days={Days}, BatchSize={BatchSize} <<<", 
+            executionId, resetPointYears, remindDay, batchSize);
 
         try
         {
-            // 1. Quét danh sách hội viên đến hạn
-            var members = await _repository.GetMembersToRemindBurnPointAsync(request.ResetPointYears, request.RemindDay, ct);
-            _logger.LogInformation("Tìm thấy {Count} hội viên không phát sinh giao dịch trong {Years} năm và điểm hết hạn trong {Days} ngày.", members.Count, request.ResetPointYears, request.RemindDay);
+            // 1. Quét danh sách hội viên đến hạn (dùng trực tiếp giá trị tham số đã có default)
+            var members = await _repository.GetMembersToRemindBurnPointAsync(resetPointYears, remindDay, ct);
+            _logger.LogInformation("[{ExecutionId}] Tìm thấy {Count} hội viên không phát sinh giao dịch trong {Years} năm và điểm hết hạn trong {Days} ngày.", 
+                executionId, members.Count, resetPointYears, remindDay);
 
             if (members.Count == 0)
             {
-                return BOProcessResult.Success(new { processed = 0 }, "Không có hội viên nào cần cảnh báo hôm nay.");
+                return BOProcessResult.Success(new { executionId, processed = 0, years = resetPointYears, days = remindDay }, 
+                    "Không có hội viên nào cần cảnh báo hôm nay.");
             }
 
             // 2. Tạo bản ghi bảng BurnPoint
@@ -59,11 +64,17 @@ public class BurnPointService : IBurnPointService
             }).ToList();
 
             int inserted = await _repository.BulkCreateBurnPointsAsync(recordsToInsert, ct);
-            _logger.LogInformation("Đã lưu {Count} bản ghi cảnh báo vào bảng BurnPoint.", inserted);
+            _logger.LogInformation("[{ExecutionId}] Đã lưu {Count} bản ghi cảnh báo vào bảng BurnPoint.", executionId, inserted);
 
-            // 3. Gửi thông báo đẩy bất đồng bộ (Concurrent Batching)
+            // 3. Gửi thông báo đẩy bất đồng bộ (Concurrent Batching theo batchSize)
             int sentSuccess = 0;
-            await Parallel.ForEachAsync(recordsToInsert, new ParallelOptions { MaxDegreeOfParallelism = 10, CancellationToken = ct }, async (record, token) =>
+            var parallelOptions = new ParallelOptions 
+            { 
+                MaxDegreeOfParallelism = Math.Min(batchSize, 20), 
+                CancellationToken = ct 
+            };
+
+            await Parallel.ForEachAsync(recordsToInsert, parallelOptions, async (record, token) =>
             {
                 string title = "Thông báo điểm thưởng sắp hết hạn";
                 string content = $"Điểm tích lũy ({record.Point:N0} điểm) của Quý khách tại Gigamall sẽ hết hạn vào ngày {record.ExpiredDate:dd/MM/yyyy}. Hãy đến mua sắm để duy trì và sử dụng điểm!";
@@ -77,20 +88,25 @@ public class BurnPointService : IBurnPointService
             });
 
             sw.Stop();
-            _logger.LogInformation(">>> HOÀN TẤT TASK BURN POINT REMINDER: Đã gửi {Sent}/{Total} thông báo trong {Elapsed}ms <<<", sentSuccess, recordsToInsert.Count, sw.ElapsedMilliseconds);
+            _logger.LogInformation(">>> [{ExecutionId}] HOÀN TẤT TASK BURN POINT REMINDER: Đã gửi {Sent}/{Total} thông báo trong {Elapsed}ms <<<", 
+                executionId, sentSuccess, recordsToInsert.Count, sw.ElapsedMilliseconds);
 
             return BOProcessResult.Success(new
             {
+                executionId,
                 totalIdentified = members.Count,
                 recordsCreated = inserted,
                 notificationsSent = sentSuccess,
+                effectiveYears = resetPointYears,
+                effectiveDays = remindDay,
+                batchSize = batchSize,
                 elapsedMilliseconds = sw.ElapsedMilliseconds
             }, $"Đã xử lý xong {members.Count} hội viên, gửi thành công {sentSuccess} thông báo trong {sw.ElapsedMilliseconds}ms.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lỗi nghiêm trọng khi thực thi BurnPointReminder");
-            return BOProcessResult.Fail("EXECUTION_ERROR", $"Lỗi thực thi: {ex.Message}");
+            _logger.LogError(ex, "[{ExecutionId}] Lỗi nghiêm trọng khi thực thi BurnPointReminder", executionId);
+            return BOProcessResult.Fail($"Lỗi thực thi: {ex.Message}", "EXECUTION_ERROR");
         }
     }
 }
