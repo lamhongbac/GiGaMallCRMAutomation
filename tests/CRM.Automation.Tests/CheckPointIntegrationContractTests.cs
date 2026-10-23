@@ -80,4 +80,37 @@ public class CheckPointIntegrationContractTests
         Assert.Equal(150.5m, dto.RemainingPoints);
         Assert.True(dto.RemainingPoints > 0);
     }
+    [Fact]
+    public void UpClassRequest_ShouldMatchCheckPointTaskContract()
+    {
+        var request = new UpClassRequest
+        {
+            ExecutionId = "CP-UPCLASS-2026-TEST",
+            TaskCode = "TASK_UP_CLASS",
+            TriggerBy = "CheckPoint"
+        };
+
+        Assert.Equal("CP-UPCLASS-2026-TEST", request.ExecutionId);
+        Assert.Equal("TASK_UP_CLASS", request.TaskCode);
+    }
+
+    [Fact]
+    public void UpClassResultDto_ShouldReflectTierUpgradeAccurately()
+    {
+        var result = new UpClassResultDto
+        {
+            MemID = "MEM-001",
+            CardNo = "97040001",
+            OldClassNo = "SILVER",
+            NewClassNo = "GOLD",
+            NewClassName = "Hạng Vàng",
+            CloseAmt = 5000000m,
+            BonusRewardPoints = 500m,
+            Success = true
+        };
+
+        Assert.True(result.Success);
+        Assert.Equal("GOLD", result.NewClassNo);
+        Assert.Equal(500m, result.BonusRewardPoints);
+    }
 }

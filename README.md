@@ -1,130 +1,84 @@
-﻿# CRM Automation Solution (.NET 8)
+# GigaMall CRM Enterprise Solution (.NET 8) - `CRMMall.sln`
 
-> **Giải pháp Tự động hóa CRM GigaMall** - Tách biệt độc lập khỏi legacy code, nâng cấp lên **.NET 8**, sẵn sàng tích hợp trực tiếp với hệ thống tự động hóa **CheckPoint Framework** (Task Type 1 WebAPI & Task Type 3 WebApiAsync).
+> **Hệ sinh thái CRM Loyalty & Tự động hóa Toàn diện GigaMall** - Chuyển đổi và hiện đại hóa trên nền tảng **.NET 8 LTS**, tích hợp kiến trúc 3 lớp Microservice (DAL - BLL - GUI) và nền tảng tự động hóa **CheckPoint Orchestration Platform**.
 
 ---
 
-## 1. Cấu trúc Giải pháp (Clean Architecture)
+## 1. Cấu trúc Tổng thể Giải pháp Hợp nhất (Unified Solution)
+
+Hệ thống đã được quy tụ tập trung vào duy nhất một solution: `D:\GIT PROJECT\GIGAMallMigration\CRMMall.sln` (thay thế và gộp dứt điểm `CRMAutomationSln.sln`), bao gồm **7 projects** phân định rành mạch theo Clean Architecture:
 
 ```
 D:\GIT PROJECT\GIGAMallMigration\
-├── CRMAutomationSln.sln
-├── .gitignore                          # Cấu hình chuẩn Git cho .NET
-├── README.md                           # Tài liệu kiến trúc và hướng dẫn vận hành
+├── CRMMall.sln                              # Solution tổng thể duy nhất quản lý toàn bộ hệ sinh thái
+├── README.md                                # Tài liệu kiến trúc & hiện trạng hệ thống
+├── DEV_PLAN_PHASE_1.md                      # Kế hoạch phát triển chi tiết Giai đoạn 1
+│
 ├── src\
-│   ├── CRM.Automation.Core\            # .NET 8 Class Library (Models, Interfaces, Contracts, DTOs, Settings)
-│   ├── CRM.Automation.Infrastructure\  # .NET 8 Class Library (Dapper, Repositories, Firebase Push, Workflows)
-│   └── CRM.Automation.Api\             # .NET 8 ASP.NET Core WebAPI (Swagger, ApiKey Filter, Task Controllers)
-└── tests\
-    └── CRM.Automation.Tests\           # .NET 8 xUnit Test Suite
+│   ├── 📂 PHÂN HỆ DUYỆT HÓA ĐƠN & LOYALTY (BILL REVIEW SUBSYSTEM):
+│   │   ├── CRMMall.BillReview.DAL\          # Data Access Layer: Dapper, ConnectionFactory, Repositories
+│   │   ├── CRMMall.BillReview.BLL\          # Business Logic Layer: Tích điểm, Nâng hạng (UpClass), Vé số, Push Noti
+│   │   └── CRMMall.BillReview.GUI\          # Presentation Layer: Web API & Web Portal dành cho kiểm toán viên
+│   │
+│   └── 📂 PHÂN HỆ TỰ ĐỘNG HÓA & LẬP LỊCH (CHECKPOINT AUTOMATION SUBSYSTEM):
+│       ├── CRM.Automation.Core\             # Core Entities, Enums, DTOs, Task Contracts
+│       ├── CRM.Automation.Infrastructure\   # Triển khai tác vụ CheckPoint, tham chiếu dùng chung BLL/DAL
+│       └── CRM.Automation.Api\              # Web API tiếp nhận Trigger từ CheckPoint Platform (ApiKey Filter)
+│
+├── tests\
+│   └── CRM.Automation.Tests\                # xUnit Test Suite kiểm thử bộ quy tắc tự duyệt & nâng hạng
+│
+└── database\
+    └── CLMHQTEST_POC_Setup.sql              # Script CSDL mẫu & Stored Procedures phục vụ thử nghiệm
 ```
 
 ---
 
-## 2. Triết lý Thiết kế: Tách biệt Nghiệp vụ & Điều phối Lập lịch
+## 2. Triết lý Thiết kế: Chia sẻ BLL & Single Source of Truth
 
-### ① Phía CheckPoint (Scheduler / Orchestrator):
-- **Bản chất**: Hệ thống điều phối lập lịch phi nghiệp vụ (Non-business).
-- **Trách nhiệm**: Chỉ gửi các tham số kỹ thuật tĩnh (bất biến) để định danh và theo vết phiên chạy:
-  ```json
-  {
-    "ExecutionId": "CHECKPOINT-RUN-2026-001",
-    "TaskCode": "TASK_BURN_POINT_REMINDER",
-    "TriggerTime": "2026-10-20T01:00:00Z",
-    "TriggerBy": "CheckPointScheduler"
-  }
+Toàn bộ logic nghiệp vụ cốt lõi của Trung tâm Thương mại được đóng gói độc lập trong **`CRMMall.BillReview.BLL`** dưới dạng các **Domain Services tái sử dụng cao**:
+1. **`ILoyaltyPointsService` / `LoyaltyPointsService`**:
+   - Tính toán điểm thưởng và điểm xếp hạng theo tỷ lệ quy định tại `mssCLMCardTransRule`.
+   - Cập nhật đồng bộ các sổ cái: `mssCLMLedger`, `mssMemClassLedger`, `mssCardTrans`.
+2. **`IMembershipTierService` / `MembershipTierService`**:
+   - Thẩm định tổng điểm tích lũy theo năm hoặc kỳ đánh giá.
+   - Tự động đóng thẻ cũ (Status 'C'), mở thẻ mới (Status 'O') và tặng điểm thăng hạng vào `mssCLMGiftPoint`.
+   - **Dùng chung 100%**: Phục vụ cả khi kiểm toán viên duyệt bill có phát sinh thăng hạng VÀ khi CheckPoint kích hoạt job thăng hạng hàng loạt ban đêm (`TASK_UP_CLASS`).
+3. **`ILotteryPromotionService` / `LotteryPromotionService`**:
+   - Quản lý 2 nhánh chương trình: Vé quay số may mắn (Lottery) và Quà tặng khuyến mãi (FirstTrans / Gift).
+   - Bộ kiểm soát hạn ngạch 3 tầng (Quota theo Member/Chiến dịch, Member/Ngày, Toàn chiến dịch/Ngày).
+   - Thuật toán bốc thăm ngẫu nhiên có trọng số (Weighted Random Allocation).
+4. **`INotificationService` / `NotificationService`**:
+   - Bắn Firebase Push Notification tức thì đến Mobile App với đầy đủ mẫu thông điệp cá nhân hóa.
+5. **`IBillReviewService` / `BillReviewService`**:
+   - Điều phối toàn bộ quy trình duyệt bill 6 bước nguyên tử.
+
+---
+
+## 3. Tích hợp Hệ thống Tự động hóa CheckPoint Platform
+
+Dự án `CRM.Automation.Api` và `CRM.Automation.Infrastructure` đóng vai trò là Service Node chịu sự điều phối của **CheckPoint Scheduler**:
+
+- **CheckPoint (Scheduler / Orchestrator)**:
+  - Chỉ gửi các tham số định danh phiên chạy: `ExecutionId`, `TaskCode`, `TriggerTime`.
+  - Không mang vác tham số nghiệp vụ (Non-business orchestrator).
+- **Automation API Layer (`CRM.Automation.Api`)**:
+  - Xác thực qua `ApiKey` header hoặc JWT Token.
+  - Đọc cấu hình nghiệp vụ từ `appsettings.json` và chuyển tiếp xuống Infrastructure/BLL.
+- **Automation Infrastructure (`CRM.Automation.Infrastructure`)**:
+  - Gọi trực tiếp các Service trong `CRMMall.BillReview.BLL` để thực thi xử lý nghiệp vụ thực tế trên CSDL.
+
+---
+
+## 4. Hiện trạng Kiểm tra & Nghiệm thu (Verification Status)
+
+- **Biên dịch Solution**:
+  ```powershell
+  dotnet build "D:\GIT PROJECT\GIGAMallMigration\CRMMall.sln"
+  # Kết quả: Build succeeded. 0 Warning(s), 0 Error(s)
   ```
-  *(CheckPoint hoàn toàn không mang vác bất kỳ tham số nghiệp vụ nào như số năm hay số ngày).*
-
-### ② Phía API Layer (`CRM.Automation.Api`):
-- Inject `IOptions<BurnPointSettings>` đọc các giá trị mặc định cấu hình trong `appsettings.json`.
-- Truyền trực tiếp các tham số nghiệp vụ này xuống tầng Service khi nhận trigger từ CheckPoint.
-
-### ③ Phía Domain Service (`CRM.Automation.Infrastructure`):
-- Khai báo method với các **default parameters**:
-  ```csharp
-  Task<BOProcessResult> ExecuteReminderAsync(
-      string executionId = "",
-      int resetPointYears = 2,
-      int remindDay = 30,
-      int batchSize = 500,
-      CancellationToken ct = default);
+- **Kiểm thử tự động (Unit Tests)**:
+  ```powershell
+  dotnet test "D:\GIT PROJECT\GIGAMallMigration\CRMMall.sln"
+  # Kết quả: Passed! Failed: 0, Passed: 7, Skipped: 0, Total: 7 (100% Pass)
   ```
-- **Sử dụng trực tiếp** các tham số `resetPointYears`, `remindDay`, `batchSize` trong luồng xử lý mà không cần phải kiểm tra `null` hay `<= 0`.
-
----
-
-## 3. Cấu hình Nghiệp vụ Tập trung (`appsettings.json`)
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Database=GigaMall_CRM_PROD;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True;"
-  },
-  "Authentication": {
-    "ApiKey": "GigaMall-CheckPoint-SecretKey-2026"
-  },
-  "BurnPointSettings": {
-    "ResetPointYears": 2,
-    "RemindDay": 30,
-    "BatchSize": 500
-  },
-  "ResetPointSettings": {
-    "BatchSize": 500
-  },
-  "MemberTierSettings": {
-    "EvaluationPeriodMonths": 12
-  },
-  "Notification": {
-    "GatewayUrl": "https://fcm.googleapis.com/fcm/send",
-    "SimulatePush": true
-  }
-}
-```
-
----
-
-## 4. Cấu hình trên CheckPoint Automation UI
-
-1. **Task Type**: Chọn `1 - WebAPI` (Đồng bộ) hoặc `3 - WebApiAsync` (Bất đồng bộ với Webhook).
-2. **Method**: `POST` (hoặc `GET` cho Health check).
-3. **Url**: `http://<API_HOST>:<PORT>/api/tasks/<endpoint>`
-   *(Ví dụ: `http://localhost:5000/api/tasks/burn-point-reminder`)*.
-4. **Headers**: Thêm dòng:
-   - Key: `x-Api-Key`
-   - Value: `<Khóa API cấu hình trong appsettings.json>`
-5. **Body**: Truyền thông tin ngữ cảnh phiên chạy từ CheckPoint (hoặc để trống `{}`):
-   ```json
-   {
-     "ExecutionId": "{TaskExecutionId}",
-     "TaskCode": "BURN_POINT_REMINDER",
-     "TriggerBy": "CheckPointScheduler"
-   }
-   ```
-
----
-
-## 5. Danh sách Endpoints Sẵn sàng
-
-| Tác vụ | HTTP Method | Endpoint | Mô tả |
-| :--- | :---: | :--- | :--- |
-| **Health Check** | `GET` | `/api/tasks/health` | Kiểm tra tình trạng hoạt động của service |
-| **Nhắc nhở cháy điểm** | `POST` | `/api/tasks/burn-point-reminder` | Quét hội viên sắp hết hạn điểm và gửi Push Notification qua Firebase |
-| **Chốt & Hủy điểm** | `POST` | `/api/tasks/reset-point` | Chốt và hủy số điểm hết hạn của hội viên (xét giao dịch phát sinh) |
-| **Hạ hạng thành viên** | `POST` | `/api/tasks/downgrade-membership` | Đánh giá lại chi tiêu/điểm trong kỳ và hạ hạng hội viên nếu không đạt |
-
----
-
-## 6. Hướng dẫn Liên kết Git Repository mới
-
-Khi bạn có URL Git mới từ DevOps/Admin, thực hiện các lệnh sau tại thư mục này:
-
-```bash
-cd "D:\GIT PROJECT\GIGAMallMigration"
-git init
-git add .
-git commit -m "feat: Pure separation between CheckPoint static params and CRM appsettings defaults"
-git branch -M main
-git remote add origin <URL_GIT_CUA_BAN>
-git push -u origin main
-```

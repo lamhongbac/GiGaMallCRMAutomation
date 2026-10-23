@@ -22,6 +22,10 @@ public interface IResetPointService
 
 public interface IMemberTierService
 {
+    Task<BOProcessResult> ExecuteUpClassAsync(
+        string executionId = "",
+        CancellationToken ct = default);
+
     Task<BOProcessResult> ExecuteDowngradeAsync(
         string executionId = "",
         int evaluationPeriodMonths = 12,

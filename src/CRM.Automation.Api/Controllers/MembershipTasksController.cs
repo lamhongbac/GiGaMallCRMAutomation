@@ -53,4 +53,29 @@ public class MembershipTasksController : ControllerBase
 
         return Ok(result);
     }
+    /// <summary>
+    /// CheckPoint Task: Tự động nâng hạng thẻ hội viên theo tích lũy chi tiêu/điểm.
+    /// CheckPoint chỉ truyền các tham số kỹ thuật tĩnh (ExecutionId, TaskCode, TriggerTime).
+    /// </summary>
+    [HttpPost("up-class")]
+    [ProducesResponseType(typeof(BOProcessResult), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BOProcessResult), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> RunUpClass(
+        [FromBody] UpClassRequest? request,
+        CancellationToken cancellationToken)
+    {
+        request ??= new UpClassRequest();
+        string executionId = request.ExecutionId ?? Guid.NewGuid().ToString("N");
+
+        _logger.LogInformation("CheckPoint triggered UpClass. ExecutionId: {ExecutionId}, TaskCode: {TaskCode}, TriggerBy: {TriggerBy}",
+            executionId, request.TaskCode, request.TriggerBy);
+
+        var result = await _memberTierService.ExecuteUpClassAsync(
+            executionId: executionId,
+            ct: cancellationToken
+        );
+
+        return Ok(result);
+    }
+
 }

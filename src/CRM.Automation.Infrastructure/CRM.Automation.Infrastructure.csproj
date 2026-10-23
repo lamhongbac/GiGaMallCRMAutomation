@@ -2,6 +2,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CRM.Automation.Core\CRM.Automation.Core.csproj" />
+    <ProjectReference Include="..\CRMMall.BillReview.BLL\CRMMall.BillReview.BLL.csproj" />
+    <ProjectReference Include="..\CRMMall.BillReview.DAL\CRMMall.BillReview.DAL.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,0 +1,6 @@
+@CRMMall.BillReview.GUI_HostAddress = http://localhost:5254
+
+GET {{CRMMall.BillReview.GUI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

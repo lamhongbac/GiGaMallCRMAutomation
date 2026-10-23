@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRMMall - Bàn Đối Soát & Phê Duyệt Hóa Đơn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --success: #10b981;
+            --success-hover: #059669;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+            --warning: #f59e0b;
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+            --card-border: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        header {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--card-border);
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand-badge { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 13px; }
+        .brand h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+
+        .header-actions { display: flex; gap: 12px; align-items: center; }
+        .btn {
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-success { background: var(--success); color: white; }
+        .btn-success:hover { background: var(--success-hover); }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-danger:hover { background: var(--danger-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--card-border); color: var(--text-main); }
+        .btn-outline:hover { background: #334155; }
+
+        .container { flex: 1; display: grid; grid-template-columns: 360px 1fr; overflow: hidden; }
+
+        /* Left Panel: Bill Queue */
+        .queue-panel {
+            background: var(--card-dark);
+            border-right: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .queue-header { padding: 16px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; }
+        .queue-title { font-weight: 600; font-size: 14px; }
+        .badge-count { background: #3b82f6; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 700; }
+
+        .queue-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+        .bill-card {
+            background: #182234;
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .bill-card:hover { border-color: #6366f1; transform: translateX(2px); }
+        .bill-card.active { border-color: var(--primary); background: #232f48; }
+
+        .card-row-top { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+        .card-outlet { font-weight: 600; font-size: 14px; color: #e2e8f0; margin-bottom: 4px; }
+        .card-amount { font-size: 15px; font-weight: 700; color: #38bdf8; }
+        .badge-auto { background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+        .badge-manual { background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+
+        /* Right Panel: Review Workspace */
+        .workspace { display: grid; grid-template-columns: 1fr 420px; overflow: hidden; background: #0b1120; }
+
+        .image-viewer {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #020617;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .image-container { max-width: 100%; max-height: 100%; display: flex; justify-content: center; align-items: center; }
+        .bill-image { max-width: 90%; max-height: 80vh; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); object-fit: contain; }
+
+        .review-form-panel {
+            background: var(--card-dark);
+            border-left: 1px solid var(--card-border);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow-y: auto;
+        }
+
+        .section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 4px; }
+
+        .info-box {
+            background: #182234;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 13px;
+        }
+        .info-label { color: var(--text-muted); font-size: 11px; margin-bottom: 2px; }
+        .info-val { font-weight: 600; color: #f1f5f9; }
+
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group label { font-size: 12px; font-weight: 600; color: #cbd5e1; }
+        .form-control {
+            background: #0f172a;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 10px 12px;
+            color: white;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); }
+
+        .actions-panel { margin-top: auto; display: flex; gap: 10px; padding-top: 16px; border-top: 1px solid var(--card-border); }
+        .actions-panel .btn { flex: 1; padding: 12px; justify-content: center; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .modal { background: var(--card-dark); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px; width: 440px; display: flex; flex-direction: column; gap: 16px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <span class="brand-badge">MICROSERVICE</span>
+            <h1>CRMMall Bill Review & Approval Console</h1>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-outline" id="btnRefresh" onclick="loadPendingBills()">🔄 Tải lại</button>
+            <button class="btn btn-primary" onclick="runAutoApprovalBatch()">⚡ Tự duyệt theo lô (AI)</button>
+            <a href="/swagger" target="_blank" class="btn btn-outline">📖 Swagger API</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Left: Queue -->
+        <div class="queue-panel">
+            <div class="queue-header">
+                <span class="queue-title">HÓA ĐƠN CHỜ DUYỆT</span>
+                <span class="badge-count" id="lblQueueCount">0</span>
+            </div>
+            <div class="queue-list" id="queueList">
+                <div style="text-align: center; padding: 40px; color: #94a3b8;">Đang tải danh sách...</div>
+            </div>
+        </div>
+
+        <!-- Right: Workspace -->
+        <div class="workspace">
+            <div class="image-viewer">
+                <div class="image-container">
+                    <img id="billImage" class="bill-image" src="" alt="Ảnh hóa đơn" style="display: none;">
+                    <div id="noImageText" style="color: #64748b; font-size: 14px;">Chọn một hóa đơn từ danh sách bên trái để đối soát.</div>
+                </div>
+            </div>
+
+            <div class="review-form-panel">
+                <div class="section-title">Hội viên & Trạng thái</div>
+                <div class="info-box">
+                    <div>
+                        <div class="info-label">MÃ HỘI VIÊN</div>
+                        <div class="info-val" id="dispMemID">-</div>
+                    </div>
+                    <div>
+                        <div class="info-label">HỌ VÀ TÊN</div>
+                        <div class="info-val" id="dispFullName">-</div>
+                    </div>
+                    <div>
+                        <div class="info-label">SỐ ĐIỆN THOẠI</div>
+                        <div class="info-val" id="dispMobile">-</div>
+                    </div>
+                    <div>
+                        <div class="info-label">HẠNG THẺ HIỆN TẠI</div>
+                        <div class="info-val" id="dispTier" style="color: #fbbf24;">-</div>
+                    </div>
+                </div>
+
+                <div class="section-title" style="margin-top: 10px;">Dữ liệu đối soát (Xác thực cuối)</div>
+                <div class="form-group">
+                    <label>Mã gian hàng / Outlet Number</label>
+                    <input type="text" id="txtOutlet" class="form-control" placeholder="Mã gian hàng">
+                </div>
+                <div class="form-group">
+                    <label>Số hóa đơn / Bill Number</label>
+                    <input type="text" id="txtBillNo" class="form-control" placeholder="Số hóa đơn">
+                </div>
+                <div class="form-group">
+                    <label>Tổng tiền thanh toán (VNĐ)</label>
+                    <input type="number" id="txtTotal" class="form-control" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Ngày giờ hóa đơn</label>
+                    <input type="datetime-local" id="txtDate" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label>Gợi ý từ Auto-Approval Policy</label>
+                    <div id="dispPolicyHint" style="font-size: 12px; padding: 8px; border-radius: 6px; background: #0f172a; border: 1px solid #334155; color: #94a3b8;">
+                        Chưa chọn hóa đơn
+                    </div>
+                </div>
+
+                <div class="actions-panel">
+                    <button class="btn btn-danger" id="btnReject" onclick="openRejectModal()">Từ chối</button>
+                    <button class="btn btn-success" id="btnApprove" onclick="approveBill()">✓ Phê duyệt</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject Modal -->
+    <div class="modal-overlay" id="rejectModal">
+        <div class="modal">
+            <h3 style="font-size: 16px;">Từ chối hóa đơn tích điểm</h3>
+            <div class="form-group">
+                <label>Lý do từ chối (gửi thông báo về Mobile App của khách):</label>
+                <select id="selRejectReason" class="form-control" onchange="document.getElementById('txtCustomReason').value = this.value;">
+                    <option value="Ảnh chụp mờ hoặc thiếu thông tin thanh toán.">Ảnh chụp mờ hoặc thiếu thông tin thanh toán</option>
+                    <option value="Hóa đơn đã quá hạn 48 giờ theo quy định.">Hóa đơn đã quá hạn 48 giờ</option>
+                    <option value="Gian hàng không thuộc phạm vi tích điểm Gigamall.">Gian hàng không thuộc phạm vi tích điểm</option>
+                    <option value="Hóa đơn trùng lặp đã được tích điểm trước đó.">Hóa đơn trùng lặp</option>
+                    <option value="Khác">Lý do khác...</option>
+                </select>
+                <textarea id="txtCustomReason" class="form-control" rows="3" placeholder="Nhập chi tiết lý do..."></textarea>
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                <button class="btn btn-outline" onclick="closeRejectModal()">Hủy</button>
+                <button class="btn btn-danger" onclick="confirmReject()">Xác nhận từ chối</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentBills = [];
+        let selectedBill = null;
+
+        async function loadPendingBills() {
+            try {
+                const res = await fetch('/api/bills/pending');
+                currentBills = await res.json();
+                document.getElementById('lblQueueCount').innerText = currentBills.length;
+                renderQueue();
+            } catch (err) {
+                console.error(err);
+                alert('Không thể tải danh sách hóa đơn: ' + err.message);
+            }
+        }
+
+        function renderQueue() {
+            const listEl = document.getElementById('queueList');
+            listEl.innerHTML = '';
+
+            if (currentBills.length === 0) {
+                listEl.innerHTML = '<div style="text-align: center; padding: 40px; color: #94a3b8;">Không có hóa đơn nào chờ duyệt! 🎉</div>';
+                clearWorkspace();
+                return;
+            }
+
+            currentBills.forEach(b => {
+                const card = document.createElement('div');
+                card.className = 'bill-card' + (selectedBill && selectedBill.id === b.id ? ' active' : '');
+                card.onclick = () => selectBill(b);
+
+                const amountFormatted = b.scannedBillTotal ? Number(b.scannedBillTotal).toLocaleString('vi-VN') + ' đ' : 'Chưa rõ';
+                const badgeHtml = b.isAutoApprovable 
+                    ? '<span class="badge-auto">Đủ ĐK tự duyệt</span>'
+                    : '<span class="badge-manual">Duyệt tay</span>';
+
+                card.innerHTML = `
+                    <div class="card-row-top">
+                        <span>${new Date(b.uploadImageDateTime).toLocaleTimeString('vi-VN')}</span>
+                        ${badgeHtml}
+                    </div>
+                    <div class="card-outlet">${b.scannedOutletName || b.scannedOutletNumber || 'Gian hàng không tên'}</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="card-amount">${amountFormatted}</span>
+                        <span style="font-size: 11px; color: #94a3b8;">${b.memID}</span>
+                    </div>
+                `;
+                listEl.appendChild(card);
+            });
+
+            if (!selectedBill && currentBills.length > 0) {
+                selectBill(currentBills[0]);
+            }
+        }
+
+        function selectBill(b) {
+            selectedBill = b;
+            renderQueue();
+
+            document.getElementById('dispMemID').innerText = b.memID;
+            document.getElementById('dispFullName').innerText = b.customerName || 'N/A';
+            document.getElementById('dispMobile').innerText = b.customerMobile || 'N/A';
+            document.getElementById('dispTier').innerText = b.currentTier || 'SILVER';
+
+            document.getElementById('txtOutlet').value = b.scannedOutletNumber || '';
+            document.getElementById('txtBillNo').value = b.scannedBillNumber || '';
+            document.getElementById('txtTotal').value = b.scannedBillTotal ? parseFloat(b.scannedBillTotal) : 0;
+            
+            if (b.scannedBillDateTime) {
+                try {
+                    const dt = new Date(b.scannedBillDateTime);
+                    if (!isNaN(dt.getTime())) {
+                        document.getElementById('txtDate').value = dt.toISOString().slice(0, 16);
+                    } else {
+                        document.getElementById('txtDate').value = new Date().toISOString().slice(0, 16);
+                    }
+                } catch {
+                    document.getElementById('txtDate').value = new Date().toISOString().slice(0, 16);
+                }
+            } else {
+                document.getElementById('txtDate').value = new Date().toISOString().slice(0, 16);
+            }
+
+            const hintEl = document.getElementById('dispPolicyHint');
+            hintEl.innerText = b.autoApproveReason || 'Hợp lệ';
+            hintEl.style.color = b.isAutoApprovable ? '#34d399' : '#fbbf24';
+
+            const imgEl = document.getElementById('billImage');
+            const noImgEl = document.getElementById('noImageText');
+            if (b.imageFileName) {
+                imgEl.src = '/Pictures/' + b.imageFileName;
+                imgEl.style.display = 'block';
+                noImgEl.style.display = 'none';
+                imgEl.onerror = () => {
+                    imgEl.src = 'https://placehold.co/400x600/1e293b/f8fafc?text=Hóa+Đơn+' + encodeURIComponent(b.scannedBillNumber || b.id);
+                };
+            } else {
+                imgEl.style.display = 'none';
+                noImgEl.style.display = 'block';
+            }
+        }
+
+        function clearWorkspace() {
+            selectedBill = null;
+            document.getElementById('dispMemID').innerText = '-';
+            document.getElementById('dispFullName').innerText = '-';
+            document.getElementById('dispMobile').innerText = '-';
+            document.getElementById('dispTier').innerText = '-';
+            document.getElementById('txtOutlet').value = '';
+            document.getElementById('txtBillNo').value = '';
+            document.getElementById('txtTotal').value = '';
+            document.getElementById('txtDate').value = '';
+            document.getElementById('billImage').style.display = 'none';
+            document.getElementById('noImageText').style.display = 'block';
+        }
+
+        async function approveBill() {
+            if (!selectedBill) return;
+
+            const req = {
+                billId: selectedBill.id,
+                approvedBillNumber: document.getElementById('txtBillNo').value,
+                approvedTotalAmount: parseFloat(document.getElementById('txtTotal').value),
+                approvedBillDateTime: new Date(document.getElementById('txtDate').value).toISOString(),
+                approvedOutletNumber: document.getElementById('txtOutlet').value,
+                approvedBrandNumber: selectedBill.scannedBrandNumber,
+                reviewBy: 'OperatorWeb',
+                reviewNotes: 'Phê duyệt thủ công qua Web Console.'
+            };
+
+            try {
+                const res = await fetch('/api/bills/approve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(req)
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    alert('✅ ' + result.message + (result.isUpgraded ? ` (Chúc mừng hội viên được nâng hạng lên ${result.newTier}!)` : ''));
+                    await loadPendingBills();
+                } else {
+                    alert('❌ Lỗi phê duyệt: ' + result.message);
+                }
+            } catch (err) {
+                alert('Lỗi kết nối: ' + err.message);
+            }
+        }
+
+        function openRejectModal() {
+            if (!selectedBill) return;
+            document.getElementById('txtCustomReason').value = document.getElementById('selRejectReason').value;
+            document.getElementById('rejectModal').style.display = 'flex';
+        }
+
+        function closeRejectModal() {
+            document.getElementById('rejectModal').style.display = 'none';
+        }
+
+        async function confirmReject() {
+            const reason = document.getElementById('txtCustomReason').value;
+            if (!reason) { alert('Vui lòng nhập lý do từ chối!'); return; }
+
+            const req = {
+                billId: selectedBill.id,
+                reviewBy: 'OperatorWeb',
+                reason: reason
+            };
+
+            try {
+                const res = await fetch('/api/bills/reject', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(req)
+                });
+                const result = await res.json();
+                if (res.ok) {
+                    alert('Đã từ chối hóa đơn thành công.');
+                    closeRejectModal();
+                    await loadPendingBills();
+                } else {
+                    alert('Lỗi: ' + result.message);
+                }
+            } catch (err) {
+                alert('Lỗi: ' + err.message);
+            }
+        }
+
+        async function runAutoApprovalBatch() {
+            try {
+                const res = await fetch('/api/bills/auto-review?maxBatch=50', { method: 'POST' });
+                const summary = await res.json();
+                alert(`⚡ KẾT QUẢ TỰ DUYỆT THEO LÔ:
+
+- Đã kiểm tra: ${summary.totalEvaluated} bill
+- Tự duyệt thành công: ${summary.totalAutoApproved} bill
+- Chuyển duyệt tay: ${summary.totalManualRequired} bill`);
+                await loadPendingBills();
+            } catch (err) {
+                alert('Lỗi kích hoạt auto-approval: ' + err.message);
+            }
+        }
+
+        // Khởi động
+        loadPendingBills();
+    </script>
+</body>
+</html>

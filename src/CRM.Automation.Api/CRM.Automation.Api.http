@@ -29,7 +29,6 @@ x-Api-Key: SaiMatKhauRoi123
 ###
 
 ### 4. MANUAL TEST: Kích hoạt Task Nhắc nhở cháy điểm (Burn Point Reminder)
-# Chế độ SimulatePush=true trong appsettings.json đảm bảo KHÔNG bắn tin thật ra máy khách hàng
 POST {{HostAddress}}/api/tasks/burn-point-reminder
 Content-Type: application/json
 x-Api-Key: {{ApiKey}}
@@ -65,3 +64,48 @@ x-Api-Key: {{ApiKey}}
   "TaskCode": "DOWNGRADE_MEMBERSHIP",
   "TriggerBy": "ManualDeveloperTest"
 }
+
+###
+### 6.1. MANUAL TEST: Kích hoạt Task Nâng hạng thẻ hội viên tự động (Up Class)
+POST {{HostAddress}}/api/tasks/up-class
+Content-Type: application/json
+x-Api-Key: {{ApiKey}}
+
+{
+  "ExecutionId": "MANUAL-TEST-UPCLASS-001",
+  "TaskCode": "UP_CLASS",
+  "TriggerBy": "ManualDeveloperTest"
+}
+###
+
+### 7. BÁO CÁO: Thống kê tổng hợp KPI Hiệu quả cứu điểm vs Hủy điểm
+GET {{HostAddress}}/api/reports/burn-point/summary
+Accept: application/json
+x-Api-Key: {{ApiKey}}
+
+###
+
+### 8. BÁO CÁO: Chi tiết danh sách hội viên đến hạn điểm (kèm lọc khoảng ngày)
+GET {{HostAddress}}/api/reports/burn-point?fromDate=2026-01-01&toDate=2026-12-31
+Accept: application/json
+x-Api-Key: {{ApiKey}}
+
+###
+
+### 9. BÁO CÁO TRỪ ĐIỂM CHI TIẾT: Danh sách các hội viên thực tế đã bị trừ điểm hết hạn
+GET {{HostAddress}}/api/reports/reset-point?fromDate=2026-01-01&toDate=2026-12-31
+Accept: application/json
+x-Api-Key: {{ApiKey}}
+
+###
+
+### 10. BÁO CÁO TRỪ ĐIỂM TỔNG HỢP (KPI): Tổng số hội viên & tổng điểm thực tế đã hủy
+GET {{HostAddress}}/api/reports/reset-point/summary
+Accept: application/json
+x-Api-Key: {{ApiKey}}
+###
+
+### 11. BÁO CÁO NÂNG HẠNG THẺ: Chi tiết lịch sử các hội viên đã được thăng hạng
+GET {{HostAddress}}/api/reports/membership/up-class?fromDate=2026-01-01&toDate=2026-12-31
+Accept: application/json
+x-Api-Key: {{ApiKey}}
