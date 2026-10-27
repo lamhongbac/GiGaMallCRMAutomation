@@ -21,7 +21,17 @@ namespace CRMMall.BillReview.DAL.Repositories
         /// <param name="fromDate">Ngày bắt đầu tải ảnh lên (tùy chọn).</param>
         /// <param name="toDate">Ngày kết thúc tải ảnh lên (tùy chọn).</param>
         /// <param name="limit">Số lượng bản ghi tối đa (mặc định 100).</param>
+        /// <summary>
+        /// Truy vấn danh sách các hóa đơn chờ xử lý (Pending Bills):
+        /// Điều kiện chuẩn: (OCRStatus = 0 OR OCRStatus IS NULL) AND (Approved = 0 OR Approved IS NULL).
+        /// </summary>
         Task<IEnumerable<OcrTrialTrans>> GetPendingBillsAsync(DateTime? fromDate = null, DateTime? toDate = null, int limit = 100);
+
+        /// <summary>
+        /// Truy vấn danh sách hóa đơn đã bóc tách OCR xong chờ thẩm định (Tab 2):
+        /// Điều kiện: OCRStatus = 1 AND (Approved = 0 OR Approved IS NULL).
+        /// </summary>
+        Task<IEnumerable<OcrTrialTrans>> GetBillsForReviewAsync(DateTime? fromDate = null, DateTime? toDate = null, int limit = 100);
 
         /// <summary>
         /// Lấy chi tiết thông tin hóa đơn bóc tách theo mã định danh duy nhất (ID).
@@ -80,6 +90,32 @@ namespace CRMMall.BillReview.DAL.Repositories
         Task<bool> IsBillNumberExistsAsync(string outletNumber, string billNumber, Guid excludeBillId);
 
         /// <summary>
+        /// Lấy danh sách các hóa đơn vừa upload chưa thực hiện OCR có phân trang server-side (OFFSET ... FETCH NEXT).
+        /// </summary>
+        Task<(IEnumerable<OcrTrialTrans> Items, int TotalCount)> GetPendingUploadBillsPagedAsync(DateTime? fromDate = null, DateTime? toDate = null, int pageIndex = 1, int pageSize = 25);
+
+        /// <summary>
+        /// Lấy danh sách các hóa đơn vừa upload nhưng chưa thực hiện OCR (DataStatus = 'Pending' hoặc ScanDate IS NULL).
+        /// </summary>
+        /// <param name="limit">Số lượng tối đa cần lấy.</param>
+        Task<IEnumerable<OcrTrialTrans>> GetPendingUploadBillsAsync(DateTime? fromDate = null, DateTime? toDate = null, int limit = 50);
+
+        /// <summary>
+        /// Cập nhật kết quả bóc tách OCR vào bảng mssOCRTrialTrans và chuyển DataStatus = 'OCR'.
+        /// </summary>
+        Task<bool> UpdateOcrScanResultAsync(
+            Guid billId, 
+            string? outletNumber, 
+            string? brandNumber, 
+            string? outletName, 
+            string? brandName, 
+            string? billNumber, 
+            string? billDateTime, 
+            string? billTotal, 
+            string? cashierName,
+            string? rawOcrResponse = null);
+
+        /// <summary>
         /// Khởi tạo và đồng bộ cấu trúc bảng mssOCRTrialTrans nếu chưa tồn tại trên CSDL.
         /// </summary>
         /// <remarks>
@@ -88,5 +124,30 @@ namespace CRMMall.BillReview.DAL.Repositories
         /// - CÁCH DÙNG: Được gọi trong quá trình khởi động ứng dụng (Startup).
         /// </remarks>
         Task EnsureTableSchemaAsync();
+
+        /// <summary>
+        /// Truy vấn danh sách hóa đơn phân trang nâng cao hỗ trợ bộ lọc Header (Ngày, Gian hàng, Thương hiệu, Tìm kiếm, Trạng thái).
+        /// </summary>
+        Task<(IEnumerable<OcrTrialTrans> Items, int TotalCount)> GetBillsPagedAsync(
+            DateTime? fromDate = null,
+            DateTime? toDate = null,
+            string? brandNumber = null,
+            string? outletNumber = null,
+            string? keyword = null,
+            bool? ocrStatus = null,
+            bool? reviewed = null,
+            bool? approved = null,
+            int pageIndex = 1,
+            int pageSize = 25);
+
+        /// <summary>
+        /// Lấy danh mục thương hiệu (Brands) phục vụ bộ lọc Header
+        /// </summary>
+        Task<IEnumerable<string>> GetDistinctBrandsAsync();
+
+        /// <summary>
+        /// Lấy danh mục gian hàng (Outlets) phục vụ bộ lọc Header
+        /// </summary>
+        Task<IEnumerable<(string OutletNumber, string OutletName, string BrandNumber)>> GetDistinctOutletsAsync();
     }
 }

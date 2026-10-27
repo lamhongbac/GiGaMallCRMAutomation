@@ -1,3 +1,4 @@
+using CRMMall.BillReview.BLL.Configurations;
 using CRMMall.BillReview.BLL.Policies;
 using CRMMall.BillReview.BLL.Services;
 using CRMMall.BillReview.DAL.Data;
@@ -31,6 +32,12 @@ builder.Services.AddScoped<ILotteryPromotionService, LotteryPromotionService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
 // Đăng ký Orchestrator duyệt hóa đơn
+// Đăng ký ApplicationSetting tầm vực Application (Singleton) tự động chọn kết nối theo biến "Env"
+var appSetting = new ApplicationSetting();
+builder.Configuration.Bind(appSetting);
+builder.Services.AddSingleton(appSetting);
+
+builder.Services.AddHttpClient<IOcrApiClient, OcrApiClient>();
 builder.Services.AddScoped<IBillReviewService, BillReviewService>();
 
 builder.Services.AddCors(options =>
@@ -51,6 +58,7 @@ if (app.Environment.IsDevelopment() || true)
 }
 
 app.UseCors("AllowAll");
+app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();

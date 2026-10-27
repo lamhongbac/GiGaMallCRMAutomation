@@ -34,6 +34,7 @@ namespace CRMMall.BillReview.DAL.Entities
         public bool? Reviewed { get; set; }
         public string? ReviewNotes { get; set; }
         public string? DataStatus { get; set; }
+        public bool? OCRStatus { get; set; }
 
         // Giá trị phê duyệt cuối cùng (Final Approved Values)
         public string? BillNumberA { get; set; }

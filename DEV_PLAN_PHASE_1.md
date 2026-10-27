@@ -5,6 +5,11 @@
 
 ---
 
+
+> 📌 **Kế hoạch Chi tiết Phân hệ Duyệt hóa đơn & OCR Server Integration**:  
+> Toàn bộ đặc tả chu trình sống hóa đơn (B1 -> B4) và Kế hoạch phát triển Giai đoạn 2.1 (Interactive UI) & 2.2 (CheckPoint Framework) được theo dõi chi tiết tại:  
+> 👉 [`docs/OCR_Bill_Processing_Lifecycle_Spec_And_DevPlan.md`](docs/OCR_Bill_Processing_Lifecycle_Spec_And_DevPlan.md).
+
 ## 1. TỔNG QUAN & MA TRẬN TÁC VỤ GIAI ĐOẠN 1
 
 Giai đoạn 1 tập trung chuẩn hóa 4 tác vụ nghiệp vụ nền tảng:

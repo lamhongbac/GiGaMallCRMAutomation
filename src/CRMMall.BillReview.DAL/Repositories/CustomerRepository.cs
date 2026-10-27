@@ -26,13 +26,20 @@ namespace CRMMall.BillReview.DAL.Repositories
 
         public async Task<string?> GetDeviceTokenAsync(string memId)
         {
-            using var conn = _connectionFactory.CreateConnection();
-            const string sql = @"
-                SELECT TOP 1 AppID
-                FROM dbo.mssMobileTracking WITH (NOLOCK)
-                WHERE MemID = @MemID
-                ORDER BY ID DESC";
-            return await conn.ExecuteScalarAsync<string?>(sql, new { MemID = memId });
+            try
+            {
+                using var conn = _connectionFactory.CreateConnection();
+                const string sql = @"
+                    SELECT TOP 1 AppID
+                    FROM dbo.mssMobileTracking WITH (NOLOCK)
+                    WHERE MemID = @MemID
+                    ORDER BY ID DESC";
+                return await conn.ExecuteScalarAsync<string?>(sql, new { MemID = memId });
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

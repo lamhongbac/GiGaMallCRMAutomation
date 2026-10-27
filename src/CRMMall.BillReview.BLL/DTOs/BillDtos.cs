@@ -32,11 +32,21 @@ namespace CRMMall.BillReview.BLL.DTOs
     public class ApproveBillRequest
     {
         public Guid BillId { get; set; }
+
+        // Dữ liệu Admin THỰC SỰ gõ vào (Nếu không gõ thì là null, tuyệt đối không lấy số OCR đè vào đây)
+        public string? BillNumberA { get; set; }
+        public decimal? BillTotalA { get; set; }
+        public DateTime? BillDateTimeA { get; set; }
+        public string? OutletNumberA { get; set; }
+        public string? BrandNumberA { get; set; }
+
+        // Dữ liệu Final chốt duyệt (kết hợp Admin và OCR để phục vụ validation và logic sau này)
         public string ApprovedBillNumber { get; set; } = string.Empty;
         public decimal ApprovedTotalAmount { get; set; }
         public DateTime ApprovedBillDateTime { get; set; }
         public string ApprovedOutletNumber { get; set; } = string.Empty;
         public string? ApprovedBrandNumber { get; set; }
+
         public string ReviewBy { get; set; } = "Operator";
         public string? ReviewNotes { get; set; }
     }

@@ -3,44 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRMMall - Bàn Đối Soát & Phê Duyệt Hóa Đơn</title>
+    <title>CRMMall - Bàn Đối Soát & Thử Nghiệm OCR NextGen</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --primary-subtle: rgba(99, 102, 241, 0.15);
             --success: #10b981;
             --success-hover: #059669;
+            --success-subtle: rgba(16, 185, 129, 0.15);
             --danger: #ef4444;
             --danger-hover: #dc2626;
+            --danger-subtle: rgba(239, 68, 68, 0.15);
             --warning: #f59e0b;
-            --bg-dark: #0f172a;
-            --card-dark: #1e293b;
-            --card-border: #334155;
+            --warning-subtle: rgba(245, 158, 11, 0.15);
+            --cyan: #06b6d4;
+            --cyan-subtle: rgba(6, 182, 212, 0.15);
+            --purple: #a855f7;
+            --bg-dark: #090d16;
+            --surface-1: #0f172a;
+            --surface-2: #1e293b;
+            --surface-3: #27354a;
+            --border: #334155;
+            --border-light: rgba(255, 255, 255, 0.08);
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
+            --text-dim: #64748b;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg-dark); color: var(--text-main); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--surface-1); }
+        ::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Top Header */
         header {
-            background: rgba(30, 41, 59, 0.85);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--card-border);
-            padding: 12px 24px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 10px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            z-index: 30;
+            flex-shrink: 0;
         }
 
+        .brand-container { display: flex; align-items: center; gap: 20px; }
         .brand { display: flex; align-items: center; gap: 12px; }
-        .brand-badge { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 13px; }
-        .brand h1 { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+        .brand-badge {
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.35);
+        }
+        .brand h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+
+        /* Nav Tabs */
+        .nav-tabs { display: flex; gap: 6px; background: rgba(0, 0, 0, 0.3); padding: 4px; border-radius: 10px; border: 1px solid var(--border-light); }
+        .nav-tab {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-tab:hover { color: var(--text-main); background: rgba(255, 255, 255, 0.05); }
+        .nav-tab.active {
+            background: var(--surface-2);
+            color: white;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+        }
+        .nav-tab .badge {
+            font-size: 11px;
+            padding: 2px 7px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+        .badge-pending { background: #3b82f6; color: white; }
+        .badge-review { background: #f59e0b; color: white; }
 
         .header-actions { display: flex; gap: 12px; align-items: center; }
+        .server-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #34d399;
+        }
+        .db-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(99, 102, 241, 0.12);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #a5b4fc;
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+        }
+
         .btn {
             border: none;
             padding: 8px 16px;
@@ -48,39 +147,290 @@
             font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            text-decoration: none;
+            user-select: none;
         }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-hover); transform: translateY(-1px); }
-        .btn-success { background: var(--success); color: white; }
-        .btn-success:hover { background: var(--success-hover); }
+        .btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25); }
+        .btn-primary:hover:not(:disabled) { background: var(--primary-hover); transform: translateY(-1px); }
+        .btn-success { background: var(--success); color: white; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25); }
+        .btn-success:hover:not(:disabled) { background: var(--success-hover); transform: translateY(-1px); }
         .btn-danger { background: var(--danger); color: white; }
-        .btn-danger:hover { background: var(--danger-hover); }
-        .btn-outline { background: transparent; border: 1px solid var(--card-border); color: var(--text-main); }
-        .btn-outline:hover { background: #334155; }
+        .btn-danger:hover:not(:disabled) { background: var(--danger-hover); }
+        .btn-warning { background: var(--warning); color: #0f172a; font-weight: 700; }
+        .btn-purple { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; }
+        .btn-purple:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(168, 85, 247, 0.35); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover:not(:disabled) { background: var(--surface-2); border-color: #475569; }
+        .btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 6px; }
 
-        .container { flex: 1; display: grid; grid-template-columns: 360px 1fr; overflow: hidden; }
-
-        /* Left Panel: Bill Queue */
-        .queue-panel {
-            background: var(--card-dark);
-            border-right: 1px solid var(--card-border);
+        /* ================= COMMON FILTER BAR CSS ================= */
+        .common-filter-bar {
+            background: #0f172a;
+            border-bottom: 1px solid var(--border);
+            padding: 8px 20px;
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+            z-index: 50;
+        }
+
+        /* ================= STRICT TAB ISOLATION CSS ================= */
+        .view-container {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            height: calc(100vh - 61px - 53px);
+        }
+        
+        /* By default ALL tab views are completely hidden */
+        .tab-view {
+            display: none !important;
+            height: 100%;
+            width: 100%;
             overflow: hidden;
         }
 
-        .queue-header { padding: 16px; border-bottom: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; }
-        .queue-title { font-weight: 600; font-size: 14px; }
-        .badge-count { background: #3b82f6; color: white; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 700; }
+        /* Only the ACTIVE tab view is displayed */
+        #viewTesting.active {
+            display: flex !important;
+            flex-direction: column;
+            padding: 14px 20px;
+            overflow-y: auto;
+            gap: 12px;
+        }
 
+        #viewReview.active {
+            display: grid !important;
+            grid-template-columns: 360px 1fr;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* ================= VIEW 1: DATA CHƯA OCR (TAB 1) ================= */
+        /* KPI Cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; flex-shrink: 0; }
+        .kpi-card {
+            background: var(--surface-1);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .kpi-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .kpi-header { display: flex; justify-content: space-between; align-items: center; }
+        .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+        .kpi-icon { font-size: 16px; }
+        .kpi-value { font-size: 22px; font-weight: 800; color: white; letter-spacing: -0.5px; }
+        .kpi-desc { font-size: 11px; color: var(--text-dim); }
+
+        /* Table Card */
+        .table-card {
+            background: var(--surface-1);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 480px;
+        }
+        .table-header-bar {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.4);
+            flex-shrink: 0;
+        }
+        .table-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .search-box {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: white;
+            font-size: 12px;
+            width: 240px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .search-box:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-subtle); }
+
+        .table-responsive { flex: 1; overflow-y: auto; overflow-x: auto; }
+        table.custom-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        table.custom-table th {
+            background: var(--surface-2);
+            color: var(--text-muted);
+            padding: 12px 16px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        table.custom-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+            transition: background 0.15s ease;
+        }
+        table.custom-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+        /* Column Specifics */
+        .col-id { width: 60px; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim); }
+        .col-member { width: 170px; }
+        .col-image { width: 120px; text-align: center; }
+        .col-ocr { min-width: 420px; }
+        .col-actions { width: 220px; text-align: right; }
+
+        .mem-badge {
+            background: var(--surface-2);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 13px;
+            color: #38bdf8;
+            font-family: 'JetBrains Mono', monospace;
+            display: inline-block;
+            margin-bottom: 4px;
+        }
+        .time-text { font-size: 11px; color: var(--text-dim); display: flex; align-items: center; gap: 4px; }
+        .filename-text { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+
+        /* Thumbnail */
+        .thumb-wrap {
+            position: relative;
+            width: 80px;
+            height: 100px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #020617;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            margin: 0 auto;
+            transition: all 0.2s ease;
+        }
+        .thumb-wrap:hover { transform: scale(1.05); border-color: var(--primary); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+        .thumb-wrap img { width: 100%; height: 100%; object-fit: cover; }
+        .thumb-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .thumb-wrap:hover .thumb-overlay { opacity: 1; }
+
+        /* Status Badges */
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
+        }
+        .status-pending { background: var(--warning-subtle); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-ocr-done { background: var(--cyan-subtle); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
+        .status-saved { background: var(--success-subtle); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        /* OCR Data Preview Box */
+        .ocr-preview-box {
+            background: #141d2e;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            font-size: 12px;
+        }
+        .ocr-empty {
+            color: var(--text-dim);
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px;
+        }
+        .ocr-row { display: flex; justify-content: space-between; align-items: center; }
+        .ocr-outlet { font-weight: 700; color: #f1f5f9; font-size: 13px; }
+        .ocr-billno { font-family: 'JetBrains Mono', monospace; color: #94a3b8; }
+        .ocr-amount { font-size: 15px; font-weight: 800; color: #34d399; }
+        .ocr-datetime { color: var(--text-muted); font-size: 11px; }
+        .ocr-score {
+            display: inline-flex;
+            gap: 8px;
+            margin-top: 4px;
+            padding-top: 4px;
+            border-top: 1px dashed var(--border);
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+        .score-pill { background: rgba(99, 102, 241, 0.2); color: #a5b4fc; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+
+        /* Action Buttons Grid in Table */
+        .action-cell { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+        .btn-group-row { display: flex; gap: 6px; }
+
+        /* Skeleton loader */
+        .ocr-loading {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            color: #38bdf8;
+            font-weight: 600;
+        }
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(56, 189, 248, 0.2);
+            border-top-color: #38bdf8;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ================= VIEW 2: BÀN THẨM ĐỊNH & ĐỐI SOÁT (TAB 2) ================= */
+        .queue-panel {
+            background: var(--surface-1);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            height: 100%;
+        }
+        .queue-header { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
+        .queue-title { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
         .queue-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+
         .bill-card {
             background: #182234;
-            border: 1px solid var(--card-border);
+            border: 1px solid var(--border);
             border-radius: 10px;
             padding: 12px;
             cursor: pointer;
@@ -88,314 +438,2876 @@
         }
         .bill-card:hover { border-color: #6366f1; transform: translateX(2px); }
         .bill-card.active { border-color: var(--primary); background: #232f48; }
-
         .card-row-top { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
         .card-outlet { font-weight: 600; font-size: 14px; color: #e2e8f0; margin-bottom: 4px; }
         .card-amount { font-size: 15px; font-weight: 700; color: #38bdf8; }
         .badge-auto { background: rgba(16, 185, 129, 0.2); color: #34d399; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
         .badge-manual { background: rgba(245, 158, 11, 0.2); color: #fbbf24; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
 
-        /* Right Panel: Review Workspace */
-        .workspace { display: grid; grid-template-columns: 1fr 420px; overflow: hidden; background: #0b1120; }
-
+        .workspace { display: grid; grid-template-columns: 1fr 440px; overflow: hidden; background: #0b1120; height: 100%; }
+        
+        /* Image Viewer Tab 2 */
         .image-viewer {
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
             background: #020617;
-            padding: 24px;
             position: relative;
             overflow: hidden;
+            height: 100%;
         }
-        .image-container { max-width: 100%; max-height: 100%; display: flex; justify-content: center; align-items: center; }
-        .bill-image { max-width: 90%; max-height: 80vh; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); object-fit: contain; }
+        .review-img-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid var(--border);
+            z-index: 5;
+            flex-shrink: 0;
+        }
+        .review-img-viewport {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            cursor: grab;
+            user-select: none;
+            background: radial-gradient(circle at center, #111827 0%, #030712 100%);
+        }
+        .review-img-viewport:active { cursor: grabbing; }
+        .review-img-wrapper {
+            display: inline-block;
+            transform-origin: center center;
+            transition: transform 0.08s ease-out;
+            will-change: transform;
+        }
+        .bill-image-full {
+            max-width: 90vw;
+            max-height: 82vh;
+            border-radius: 6px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            display: block;
+            pointer-events: none;
+        }
 
         .review-form-panel {
-            background: var(--card-dark);
-            border-left: 1px solid var(--card-border);
-            padding: 24px;
+            background: var(--surface-1);
+            border-left: 1px solid var(--border);
+            padding: 18px;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 12px;
             overflow-y: auto;
+            height: 100%;
         }
-
-        .section-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 4px; }
-
+        .section-title {
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2px;
+        }
         .info-box {
             background: #182234;
-            border: 1px solid var(--card-border);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 14px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 12px;
+            font-size: 12px;
+        }
+        .info-label { color: var(--text-muted); font-size: 10px; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; }
+        .info-val { font-weight: 600; color: #f1f5f9; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* Bảng đối soát 2 cột (Audit Compare Grid) */
+        .audit-card {
+            background: #141d2e;
+            border: 1px solid var(--border);
             border-radius: 8px;
             padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .audit-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            font-size: 13px;
+            align-items: start;
         }
-        .info-label { color: var(--text-muted); font-size: 11px; margin-bottom: 2px; }
-        .info-val { font-weight: 600; color: #f1f5f9; }
-
-        .form-group { display: flex; flex-direction: column; gap: 6px; }
-        .form-group label { font-size: 12px; font-weight: 600; color: #cbd5e1; }
-        .form-control {
-            background: #0f172a;
-            border: 1px solid var(--card-border);
+        .audit-header-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: #cbd5e1;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .audit-col-ocr {
+            background: #0b1120;
+            border: 1px solid #334155;
             border-radius: 6px;
-            padding: 10px 12px;
-            color: white;
+            padding: 8px 10px;
+            color: #94a3b8;
+            font-size: 12px;
+            min-height: 38px;
+            display: flex;
+            align-items: center;
+            word-break: break-word;
+        }
+        /* Ô nhập liệu Admin Adjust (Chữ trắng sáng trên nền tối, rõ nét 100%, không bị chìm màu) */
+        .form-control,
+        .audit-col-adjust input,
+        input.form-control,
+        select.form-control,
+        textarea.form-control {
+            width: 100%;
             font-size: 13px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border: 1px solid #3b82f6 !important;
+            background-color: #0b1329 !important;
+            color: #ffffff !important; /* Chữ trắng sáng 100%, nhìn cực rõ */
+            -webkit-text-fill-color: #ffffff !important;
+            border-radius: 6px;
+            outline: none;
+            box-sizing: border-box;
+            color-scheme: dark; /* Bắt buộc để datetime-local và indicator hiển thị trắng sáng */
+            caret-color: #38bdf8 !important; /* Con trỏ gõ màu xanh cyan phát sáng nổi bật */
             transition: all 0.2s ease;
         }
-        .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2); }
+        .form-control:focus,
+        .audit-col-adjust input:focus,
+        input.form-control:focus,
+        textarea.form-control:focus {
+            background-color: #172554 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            border-color: #60a5fa !important;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.45) !important;
+        }
+        .form-control::placeholder,
+        .audit-col-adjust input::placeholder,
+        textarea.form-control::placeholder {
+            color: #94a3b8 !important; /* Placeholder màu xám sáng, dễ đọc */
+            -webkit-text-fill-color: #94a3b8 !important;
+            font-size: 11px;
+            font-style: italic;
+            font-weight: normal;
+        }
+        /* Style riêng cho ô Tổng tiền điều chỉnh txtTotalA hiển thị màu xanh ngọc lục bảo to rõ */
+        #txtTotalA {
+            color: #34d399 !important;
+            -webkit-text-fill-color: #34d399 !important;
+            font-size: 15px !important;
+            font-weight: 700 !important;
+        }
+        #txtTotalA:focus {
+            color: #34d399 !important;
+            -webkit-text-fill-color: #34d399 !important;
+        }
+        /* Style riêng cho Textarea ReviewNotes */
+        textarea.form-control {
+            background-color: #0b1329 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            border: 1px solid #475569 !important;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-family: inherit;
+            outline: none;
+        }
+        textarea.form-control:focus {
+            border-color: #3b82f6 !important;
+            background-color: #172554 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
 
-        .actions-panel { margin-top: auto; display: flex; gap: 10px; padding-top: 16px; border-top: 1px solid var(--card-border); }
-        .actions-panel .btn { flex: 1; padding: 12px; justify-content: center; }
+        /* Khối Final Summary Card */
+        .final-summary-card {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(6, 182, 212, 0.05));
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-radius: 8px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .final-summary-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+        }
+        .final-label { color: #94a3b8; font-weight: 600; }
+        .final-val-wrap { display: flex; align-items: center; gap: 6px; }
+        .final-val { font-weight: 700; color: #f8fafc; }
+        .badge-source-ocr {
+            background: rgba(56, 189, 248, 0.15);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+        .badge-source-admin {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            font-size: 10px;
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-weight: 700;
+        }
 
-        /* Modal */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; }
-        .modal { background: var(--card-dark); border: 1px solid var(--card-border); border-radius: 12px; padding: 24px; width: 440px; display: flex; flex-direction: column; gap: 16px; }
-    </style>
+        .actions-panel { margin-top: auto; display: flex; gap: 10px; padding-top: 12px; border-top: 1px solid var(--border); flex-shrink: 0; }
+        .actions-panel .btn { flex: 1; padding: 10px 14px; justify-content: center; font-size: 13px; font-weight: 700; }
+
+        /* ================= LIGHTBOX MODAL WITH DRAG & PAN ================= */
+        .lightbox-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.92);
+            backdrop-filter: blur(10px);
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        .lightbox-header {
+            padding: 12px 24px;
+            background: rgba(15, 23, 42, 0.98);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+        .lightbox-title { font-size: 15px; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; }
+        .lightbox-toolbar { display: flex; gap: 8px; align-items: center; }
+        
+        .lightbox-body {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            padding: 20px;
+            cursor: grab;
+            user-select: none;
+            background: radial-gradient(circle at center, #111827 0%, #030712 100%);
+        }
+        .lightbox-body:active { cursor: grabbing; }
+
+        .lightbox-img-wrapper {
+            max-width: 90vw;
+            max-height: 80vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
+            will-change: transform;
+            transition: transform 0.05s linear;
+        }
+        .lightbox-img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 8px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.85);
+            object-fit: contain;
+            user-select: none;
+            pointer-events: none;
+        }
+
+        .lightbox-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--border);
+            color: white;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+        }
+        .lightbox-nav-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 0 18px rgba(99, 102, 241, 0.6);
+        }
+        .lightbox-nav-btn.prev { left: 24px; }
+        .lightbox-nav-btn.next { right: 24px; }
+
+        .drag-hint-pill {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 20px;
+            pointer-events: none;
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .lightbox-sidebar {
+            width: 420px;
+            background: var(--surface-1);
+            border-left: 1px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        /* Raw JSON Modal */
+        .json-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1100;
+        }
+        .json-modal {
+            background: var(--surface-1);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 650px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .json-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+        .json-body { padding: 16px; overflow-y: auto; background: #020617; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #38bdf8; white-space: pre-wrap; }
+
+        /* Toast Container */
+        .toast-container { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 10px; z-index: 2000; }
+        .toast {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 18px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            min-width: 280px;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .toast-success { border-left: 4px solid var(--success); color: #34d399; }
+        .toast-error { border-left: 4px solid var(--danger); color: #f87171; }
+        .toast-info { border-left: 4px solid var(--cyan); color: #38bdf8; }
+    
+        /* Date Filter & Paging Toolbar */
+        .date-filter-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .filter-item { display: flex; align-items: center; gap: 6px; }
+        .filter-label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+        .date-input {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 5px 10px;
+            color: #f8fafc;
+            font-size: 12px;
+            outline: none;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        .date-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-subtle); }
+        .date-input::-webkit-calendar-picker-indicator { filter: invert(0.85); cursor: pointer; }
+        .header-action-group { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .paging-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border);
+            padding: 3px 6px;
+            border-radius: 8px;
+        }
+        .paging-info {
+            font-size: 12px;
+            color: var(--text-muted);
+            padding: 0 6px;
+            white-space: nowrap;
+            user-select: none;
+        }
+        .paging-info strong { color: #f8fafc; }
+        .total-count-badge { font-size: 11px; color: #94a3b8; margin-left: 2px; }
+        .select-page-size {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: #f8fafc;
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+        }
+        .btn-icon {
+            min-width: 28px;
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .table-footer-bar {
+            padding: 10px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.35);
+            font-size: 12px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        /* Enhanced 2 Areas in Modal: AI (OCR) vs Admin Adjust */
+        .area-container {
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            transition: all 0.2s ease;
+        }
+        .area-ai {
+            background: rgba(99, 102, 241, 0.08);
+            border: 1px solid rgba(99, 102, 241, 0.35);
+        }
+        .area-adjust {
+            background: rgba(245, 158, 11, 0.06);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .area-title {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+        .area-ai .area-title { color: #818cf8; }
+        .area-adjust .area-title { color: #fbbf24; }
+        .area-badge-lock {
+            font-size: 10px;
+            font-weight: 700;
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            padding: 2px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+        .adjust-input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .adjust-input-grid .form-group {
+            margin-bottom: 4px;
+        }
+        .adjust-input-grid label {
+            font-size: 10px;
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+            display: block;
+        }
+        .adjust-input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #f8fafc;
+            border-radius: 6px;
+            padding: 5px 8px;
+            font-size: 12px;
+            outline: none;
+            font-family: inherit;
+        }
+        .adjust-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        .resolved-badge {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+        }
+        .filter-select {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 5px 10px;
+            color: #f8fafc;
+            font-size: 12px;
+            outline: none;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .filter-select:focus { border-color: var(--primary); }
+
+</style>
 </head>
 <body>
+    <!-- Top Header -->
     <header>
-        <div class="brand">
-            <span class="brand-badge">MICROSERVICE</span>
-            <h1>CRMMall Bill Review & Approval Console</h1>
+        <div class="brand-container">
+            <div class="brand">
+                <span class="brand-badge">GIGAMALL ECOSYSTEM</span>
+                <h1>CRMMall Bill Processing & OCR Console</h1>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs">
+                <button class="nav-tab active" id="tabTesting" onclick="switchTab('testing')">
+                    <span>🔍 Hóa Đơn Chưa OCR (Tab 1)</span>
+                    <span class="badge badge-pending" id="badgePendingCount">0</span>
+                </button>
+                <button class="nav-tab" id="tabReview" onclick="switchTab('review')">
+                    <span>⚖️ Bàn Thẩm Định & Đối Soát (Tab 2)</span>
+                    <span class="badge badge-review" id="badgeReviewCount">0</span>
+                </button>
+            </div>
         </div>
+
         <div class="header-actions">
-            <button class="btn btn-outline" id="btnRefresh" onclick="loadPendingBills()">🔄 Tải lại</button>
-            <button class="btn btn-primary" onclick="runAutoApprovalBatch()">⚡ Tự duyệt theo lô (AI)</button>
-            <a href="/swagger" target="_blank" class="btn btn-outline">📖 Swagger API</a>
+            <div class="db-status" id="envBadgeContainer">
+                <span>🗄️ CSDL:</span>
+                <span id="envBadgeText" style="color: white; font-weight: 700;">CLMHQTEST</span>
+                <span style="color: #34d399; font-size: 10px;">(Test Server)</span>
+            </div>
+            <div class="server-status" id="serverStatusBadge">
+                <span class="status-dot"></span>
+                <span id="serverStatusText">OCR AI Server: 14.161.34.37:8080 (Online)</span>
+            </div>
+            <a href="/swagger" target="_blank" class="btn btn-outline btn-sm">📖 Swagger API</a>
         </div>
     </header>
 
-    <div class="container">
-        <!-- Left: Queue -->
-        <div class="queue-panel">
-            <div class="queue-header">
-                <span class="queue-title">HÓA ĐƠN CHỜ DUYỆT</span>
-                <span class="badge-count" id="lblQueueCount">0</span>
+    <!-- ================= COMMON FILTER BAR (DÙNG CHUNG TAB 1 & TAB 2) ================= -->
+    <div class="common-filter-bar">
+        <!-- Nhóm Bộ Lọc: Ngày + Brand + Outlet + Status -->
+        <div class="date-filter-group">
+            <div class="filter-item">
+                <span class="filter-label">📅 Từ:</span>
+                <input type="date" id="dpFromDate" class="date-input" title="Chọn ngày bắt đầu">
             </div>
-            <div class="queue-list" id="queueList">
-                <div style="text-align: center; padding: 40px; color: #94a3b8;">Đang tải danh sách...</div>
+            <div class="filter-item">
+                <span class="filter-label">Đến:</span>
+                <input type="date" id="dpToDate" class="date-input" title="Chọn ngày kết thúc">
             </div>
+            <div class="filter-item">
+                <span class="filter-label">🏷️ Brand:</span>
+                <select id="selBrandFilter" class="filter-select" onchange="onBrandFilterChange()" title="Lọc theo Thương hiệu">
+                    <option value="">Tất cả Brand</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <span class="filter-label">🏪 Outlet:</span>
+                <select id="selOutletFilter" class="filter-select" onchange="applyCurrentFilter()" title="Lọc theo Gian hàng">
+                    <option value="">Tất cả Outlet</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <span class="filter-label">⚡ Status:</span>
+                <select id="selStatusFilter" class="filter-select" onchange="onStatusFilterChange()" title="Lọc theo Trạng thái OCR">
+                    <option value="0" selected>Chưa OCR (Tab 1)</option>
+                    <option value="1">Đã OCR (Tab 2 - Thẩm định)</option>
+                    <option value="">Tất cả trạng thái</option>
+                </select>
+            </div>
+            <button class="btn btn-primary btn-sm" id="btnApplyFilter" onclick="applyCurrentFilter()" title="Lọc dữ liệu">
+                <span>🔍 Lọc</span>
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btnClearFilter" onclick="clearAllFilters()" title="Xóa bộ lọc (Về mặc định)">
+                <span>✖ Xóa lọc</span>
+            </button>
         </div>
 
-        <!-- Right: Workspace -->
-        <div class="workspace">
-            <div class="image-viewer">
-                <div class="image-container">
-                    <img id="billImage" class="bill-image" src="" alt="Ảnh hóa đơn" style="display: none;">
-                    <div id="noImageText" style="color: #64748b; font-size: 14px;">Chọn một hóa đơn từ danh sách bên trái để đối soát.</div>
+        <!-- Nhóm Thao Tác: Tìm kiếm + Phân trang (Tab 1) + Làm mới -->
+        <div class="header-action-group">
+            <input type="text" class="search-box" id="txtSearchPending" placeholder="🔎 Tìm MemID / Gian hàng / Bill..." onkeydown="if(event.key==='Enter') applyCurrentFilter()">
+            
+            <!-- Paging Controls Header (hiển thị khi ở Tab 1) -->
+            <div class="paging-controls" id="headerPagingControls">
+                <button class="btn btn-secondary btn-sm btn-icon" id="btnPrevPage" onclick="changePage(-1)" title="Trang trước" disabled>
+                    <span>◀</span>
+                </button>
+                <div class="paging-info" id="lblPagingInfo">
+                    Trang <strong id="lblCurrentPage">1</strong> / <strong id="lblTotalPages">1</strong>
+                    <span class="total-count-badge" id="lblTotalBillsCount">(0 bill)</span>
+                </div>
+                <button class="btn btn-secondary btn-sm btn-icon" id="btnNextPage" onclick="changePage(1)" title="Trang sau" disabled>
+                    <span>▶</span>
+                </button>
+                <select id="selPageSize" class="select-page-size" onchange="changePageSize()" title="Số lượng hóa đơn mỗi trang">
+                    <option value="15">15 / trang</option>
+                    <option value="25" selected>25 / trang</option>
+                    <option value="50">50 / trang</option>
+                    <option value="100">100 / trang</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary btn-sm" id="btnRefreshPending" onclick="applyCurrentFilter()" title="Làm mới danh sách">
+                <span>🔄 Làm mới</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="view-container">
+        <!-- ================= VIEW 1: DATA CHƯA OCR (TAB 1 - ACTIVE MẶC ĐỊNH) ================= -->
+        <div class="tab-view active" id="viewTesting">
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-label">Bill Chờ Bóc Tách</span>
+                        <span class="kpi-icon">📥</span>
+                    </div>
+                    <div class="kpi-value" id="kpiPendingCount">0</div>
+                    <div class="kpi-desc">Dữ liệu CSDL có OCRStatus = NULL / 0</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-label">Đã OCR Trong Phiên</span>
+                        <span class="kpi-icon">⚡</span>
+                    </div>
+                    <div class="kpi-value" id="kpiOcrCount" style="color: #38bdf8;">0</div>
+                    <div class="kpi-desc">Số bill đã gọi bóc tách thành công từ AI</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-label">Đã Chuyển Sang Tab 2</span>
+                        <span class="kpi-icon">💾</span>
+                    </div>
+                    <div class="kpi-value" id="kpiSavedCount" style="color: #34d399;">0</div>
+                    <div class="kpi-desc">Đã cập nhật OCRStatus = 1 trong CSDL</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-header">
+                        <span class="kpi-label">Độ Trễ AI Trung Bình</span>
+                        <span class="kpi-icon">⏱️</span>
+                    </div>
+                    <div class="kpi-value" id="kpiAvgLatency" style="color: #a855f7;">~1.19s</div>
+                    <div class="kpi-desc">Tốc độ suy luận Qwen2-VL tại OCR Server</div>
                 </div>
             </div>
 
-            <div class="review-form-panel">
-                <div class="section-title">Hội viên & Trạng thái</div>
-                <div class="info-box">
+            <!-- Table Card -->
+            <div class="table-card">
+                <div class="table-header-bar" style="padding: 10px 20px;">
+                    <div class="table-title">
+                        <span>📋 DANH SÁCH HÓA ĐƠN CHỜ BÓC TÁCH (TAB 1)</span>
+                    </div>
+                    <span style="font-size: 11px; color: var(--text-dim);">Bấm vào dòng để mở modal soi ảnh & bóc tách OCR</span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="custom-table" id="tblPendingBills">
+                        <thead>
+                            <tr>
+                                <th class="col-id">#</th>
+                                <th class="col-member">Hội Viên & Thời Gian</th>
+                                <th class="col-image">Ảnh Hóa Đơn</th>
+                                <th class="col-ocr">Kết Quả Bóc Tách OCR (AI Extracted Data)</th>
+                                <th class="col-actions">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblPendingBody">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                                    Đang tải danh sách hóa đơn từ máy chủ...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Table Footer Pagination Bar -->
+                <div class="table-footer-bar">
+                    <div id="lblFooterStats">Hiển thị 0 - 0 trong 0 hóa đơn</div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button class="btn btn-secondary btn-sm" id="btnFooterPrev" onclick="changePage(-1)" disabled>◀ Trước</button>
+                        <span id="lblFooterPageInfo" style="font-weight: 600; color: white;">Trang 1 / 1</span>
+                        <button class="btn btn-secondary btn-sm" id="btnFooterNext" onclick="changePage(1)" disabled>Sau ▶</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= VIEW 2: BÀN THẨM ĐỊNH & ĐỐI SOÁT (TAB 2 - CĂN CỨ VÀO OCRStatus = 1) ================= -->
+        <div class="tab-view" id="viewReview">
+            <!-- Left: Queue -->
+            <div class="queue-panel">
+                <div class="queue-header">
+                    <div>
+                        <span class="queue-title">HÓA ĐƠN ĐÃ OCR</span>
+                        <div style="font-size: 11px; color: var(--text-dim);">Chờ kiểm toán viên đối soát</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span class="badge badge-review" id="lblReviewCount">0</span>
+                        <button class="btn btn-outline btn-sm" onclick="loadReviewBills()" title="Tải lại danh sách" style="padding: 4px 8px;">🔄</button>
+                    </div>
+                </div>
+                <div style="padding: 8px 12px; border-bottom: 1px solid var(--border); background: rgba(15, 23, 42, 0.4);">
+                    <input type="text" id="txtSearchReview" class="form-control" placeholder="🔍 Lọc theo SĐT, gian hàng, bill..." oninput="filterReviewQueue()" style="padding: 6px 10px; font-size: 12px;">
+                </div>
+                <div class="queue-list" id="reviewQueueList">
+                    <div style="text-align: center; padding: 40px; color: #94a3b8;">Đang tải danh sách...</div>
+                </div>
+            </div>
+
+            <!-- Right: Workspace (Chi tiết đối soát + Điều chỉnh + Phê duyệt) -->
+            <div class="workspace">
+                <!-- Cột Trái: Image Viewer tương tác -->
+                <div class="image-viewer">
+                    <div class="review-img-toolbar">
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 12px; font-weight: 700; color: #94a3b8;">🔎 ẢNH HÓA ĐƠN</span>
+                            <span id="reviewZoomVal" style="font-size: 11px; background: #1e293b; color: #38bdf8; padding: 2px 6px; border-radius: 4px; font-weight: 600;">100%</span>
+                        </div>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <button class="btn btn-outline btn-sm" onclick="zoomReviewImg(-0.2)" title="Thu nhỏ (Cuộn chuột xuống)">➖</button>
+                            <button class="btn btn-outline btn-sm" onclick="zoomReviewImg(0.2)" title="Phóng to (Cuộn chuột lên)">➕</button>
+                            <button class="btn btn-outline btn-sm" onclick="rotateReviewImg(90)" title="Xoay 90 độ">🔄 90°</button>
+                            <button class="btn btn-outline btn-sm" onclick="resetReviewImg()" title="Đặt lại tỷ lệ chuẩn">↺ Vừa khung</button>
+                        </div>
+                    </div>
+                    <div class="review-img-viewport" id="reviewImgViewport">
+                        <div class="review-img-wrapper" id="reviewImgWrapper">
+                            <img id="reviewBillImage" class="bill-image-full" src="" alt="Ảnh hóa đơn" style="display: none;">
+                        </div>
+                        <div id="reviewNoImageText" style="color: #64748b; font-size: 14px; text-align: center; padding: 20px;">
+                            📋 Chọn một hóa đơn từ danh sách bên trái để đối soát chi tiết.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cột Phải: Form Đối soát & Điều chỉnh -->
+                <div class="review-form-panel">
+                    <!-- 1. Hội viên & Trạng thái -->
+                    <div class="section-title">
+                        <span>Hội viên & Trạng thái</span>
+                        <span id="dispPolicyBadge" class="badge-auto" style="display: none;">Đủ ĐK Tự Duyệt</span>
+                    </div>
+                    <div class="info-box">
+                        <div>
+                            <div class="info-label">MÃ HỘI VIÊN</div>
+                            <div class="info-val" id="dispMemID">-</div>
+                        </div>
+                        <div>
+                            <div class="info-label">HỌ VÀ TÊN</div>
+                            <div class="info-val" id="dispFullName">-</div>
+                        </div>
+                        <div>
+                            <div class="info-label">SỐ ĐIỆN THOẠI</div>
+                            <div class="info-val" id="dispMobile">-</div>
+                        </div>
+                        <div>
+                            <div class="info-label">HẠNG THẺ HIỆN TẠI</div>
+                            <div class="info-val" id="dispTier" style="color: #fbbf24;">-</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. Bảng Đối soát: Dữ liệu OCR vs Điều chỉnh Admin -->
+                    <div class="section-title" style="margin-top: 4px;">
+                        <span>Đối soát: OCR vs Điều chỉnh Admin</span>
+                        <span style="font-size: 10px; color: #38bdf8; font-weight: normal;">(Admin chỉ nhập khi OCR sai)</span>
+                    </div>
+                    <div class="audit-card">
+                        <!-- Dòng 1: Gian hàng -->
+                        <div>
+                            <div class="audit-header-label">
+                                <span>🏪 Gian hàng / Outlet</span>
+                            </div>
+                            <div class="audit-row">
+                                <div class="audit-col-ocr" id="dispOcrOutlet" title="Mã gian hàng do OCR trích xuất">-</div>
+                                <div class="audit-col-adjust">
+                                    <input type="text" id="txtOutletA" class="form-control" placeholder="Để trống nếu OCR đúng" oninput="onAdminInputChange()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dòng 2: Số hóa đơn -->
+                        <div>
+                            <div class="audit-header-label">
+                                <span>🧾 Số hóa đơn / Bill Number</span>
+                            </div>
+                            <div class="audit-row">
+                                <div class="audit-col-ocr" id="dispOcrBillNo" title="Số bill do OCR trích xuất">-</div>
+                                <div class="audit-col-adjust">
+                                    <input type="text" id="txtBillNoA" class="form-control" placeholder="Để trống nếu OCR đúng" oninput="onAdminInputChange()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dòng 3: Tổng tiền thanh toán -->
+                        <div>
+                            <div class="audit-header-label">
+                                <span>💰 Tổng tiền thanh toán (VNĐ)</span>
+                            </div>
+                            <div class="audit-row">
+                                <div class="audit-col-ocr" id="dispOcrTotal" style="font-weight: 700; color: #38bdf8;" title="Tổng tiền do OCR trích xuất">-</div>
+                                <div class="audit-col-adjust">
+                                    <input type="number" id="txtTotalA" class="form-control" placeholder="Để trống nếu OCR đúng" oninput="onAdminInputChange()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Dòng 4: Ngày giờ hóa đơn -->
+                        <div>
+                            <div class="audit-header-label">
+                                <span>📅 Ngày giờ hóa đơn</span>
+                            </div>
+                            <div class="audit-row">
+                                <div class="audit-col-ocr" id="dispOcrDate" title="Thời gian do OCR trích xuất">-</div>
+                                <div class="audit-col-adjust">
+                                    <input type="datetime-local" id="txtDateA" class="form-control" oninput="onAdminInputChange()">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. Khối Số liệu chốt duyệt (Final Summary Box) -->
+                    <div class="section-title" style="margin-top: 4px;">
+                        <span>Số liệu chốt duyệt (Final Data)</span>
+                    </div>
+                    <div class="final-summary-card" id="boxFinalSummary">
+                        <div class="final-summary-row">
+                            <span class="final-label">Gian hàng duyệt:</span>
+                            <div class="final-val-wrap">
+                                <span class="final-val" id="finalDispOutlet">-</span>
+                                <span id="badgeFinalOutlet" class="badge-source-ocr">🤖 OCR</span>
+                            </div>
+                        </div>
+                        <div class="final-summary-row">
+                            <span class="final-label">Số bill duyệt:</span>
+                            <div class="final-val-wrap">
+                                <span class="final-val" id="finalDispBillNo">-</span>
+                                <span id="badgeFinalBillNo" class="badge-source-ocr">🤖 OCR</span>
+                            </div>
+                        </div>
+                        <div class="final-summary-row">
+                            <span class="final-label">Tổng tiền duyệt:</span>
+                            <div class="final-val-wrap">
+                                <span class="final-val" id="finalDispTotal" style="font-size: 16px; font-weight: 800; color: #34d399;">0 đ</span>
+                                <span id="badgeFinalTotal" class="badge-source-ocr">🤖 OCR</span>
+                            </div>
+                        </div>
+                        <div class="final-summary-row">
+                            <span class="final-label">Ngày giờ bill:</span>
+                            <div class="final-val-wrap">
+                                <span class="final-val" id="finalDispDate">-</span>
+                                <span id="badgeFinalDate" class="badge-source-ocr">🤖 OCR</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. Ghi chú thẩm định & Hành động -->
+                    <div class="form-group" style="margin-top: 2px;">
+                        <label style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Ghi chú thẩm định (Review Notes)</label>
+                        <textarea id="txtReviewNotes" class="form-control" rows="2" placeholder="Nhập ghi chú khi duyệt hoặc điều chỉnh... (tùy chọn)"></textarea>
+                    </div>
+
+                    <div class="actions-panel">
+                        <button class="btn btn-danger" id="btnReject" onclick="openRejectModal()">✕ Từ chối</button>
+                        <button class="btn btn-success" id="btnApprove" onclick="approveBill()">✓ Phê duyệt</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= LIGHTBOX IMAGE ZOOM & DETAIL MODAL ================= -->
+    <div class="lightbox-modal" id="lightboxModal">
+        <!-- Top Toolbar -->
+        <div class="lightbox-header">
+            <div class="lightbox-title">
+                <span>🔍 Chi Tiết Hóa Đơn</span>
+                <span class="badge" id="lightboxCounter" style="background: var(--surface-3); color: #38bdf8; font-size: 11px; padding: 3px 8px; border-radius: 12px;">1 / 1</span>
+                <span style="font-size: 12px; font-weight: normal; color: var(--text-muted);" id="lightboxFileName"></span>
+            </div>
+            <div class="lightbox-toolbar">
+                <!-- Navigation Buttons (Next / Prev) -->
+                <button class="btn btn-outline btn-sm" id="btnLightboxPrev" onclick="navigateLightbox(-1)" title="Hóa đơn trước (Phím mũi tên Trái ←)">
+                    <span>◀ Trước</span>
+                </button>
+                <button class="btn btn-outline btn-sm" id="btnLightboxNext" onclick="navigateLightbox(1)" title="Hóa đơn sau (Phím mũi tên Phải →)">
+                    <span>Sau ▶</span>
+                </button>
+                <div style="width: 1px; height: 18px; background: var(--border); margin: 0 4px;"></div>
+                <!-- Zoom & Rotate Controls -->
+                <button class="btn btn-outline btn-sm" onclick="zoomImage(0.2)" title="Phóng to (Cuộn chuột lên)">🔍+ Phóng to</button>
+                <button class="btn btn-outline btn-sm" onclick="zoomImage(-0.2)" title="Thu nhỏ (Cuộn chuột xuống)">🔍- Thu nhỏ</button>
+                <button class="btn btn-outline btn-sm" onclick="rotateImage(90)" title="Xoay 90 độ">🔄 Xoay</button>
+                <button class="btn btn-primary btn-sm" id="btnSaveRotatedImage" onclick="if(window.saveImageFromUI)window.saveImageFromUI();" title="Lưu ảnh hiện tại (bao gồm góc xoay và vùng đã phóng to/crop) xuống đĩa cứng">💾 Lưu Ảnh</button>
+                <button class="btn btn-outline btn-sm" onclick="resetImageTransform()" title="Đặt lại vị trí ban đầu (Phím 0)">⏪ Đặt lại</button>
+                <button class="btn btn-danger btn-sm" onclick="closeLightbox()" title="Đóng (Phím Esc)">✕ Đóng</button>
+            </div>
+        </div>
+
+        <div style="flex: 1; display: flex; overflow: hidden; position: relative;">
+            <!-- Main Image Viewer Area (with Drag & Drop Pan) -->
+            <div class="lightbox-body" id="lightboxBody">
+                <!-- Floating Nav Arrows -->
+                <button class="lightbox-nav-btn prev" id="floatPrevBtn" onclick="navigateLightbox(-1)" title="Hóa đơn trước (Phím mũi tên Trái ←)">❮</button>
+                <button class="lightbox-nav-btn next" id="floatNextBtn" onclick="navigateLightbox(1)" title="Hóa đơn sau (Phím mũi tên Phải →)">❯</button>
+
+                <!-- Draggable Image Wrapper -->
+                <div class="lightbox-img-wrapper" id="lightboxImgWrapper">
+                    <img id="lightboxImg" class="lightbox-img" src="" alt="Hóa đơn chi tiết">
+                </div>
+
+                <!-- Drag & Zoom Hint -->
+                <div class="drag-hint-pill">
+                    <span>🖱️</span> Giữ chuột & kéo để di chuyển ảnh | Cuộn chuột để phóng to/thu nhỏ
+                </div>
+            </div>
+
+            <!-- Right Detail Sidebar with Action Buttons -->
+            <div class="lightbox-sidebar" id="lightboxSidebar">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border);">
+                    <h4 style="font-size: 14px; font-weight: 700; color: white;">Thông Tin Bóc Tách OCR</h4>
+                    <span id="lightboxStatusBadge" class="status-pill status-pending">⏳ Chưa OCR</span>
+                </div>
+
+                <!-- Member Info Box -->
+                <div class="info-box" style="padding: 10px; font-size: 12px;">
                     <div>
                         <div class="info-label">MÃ HỘI VIÊN</div>
-                        <div class="info-val" id="dispMemID">-</div>
+                        <div class="info-val" id="lightboxMemId" style="color: #38bdf8; font-family: 'JetBrains Mono', monospace;">-</div>
                     </div>
                     <div>
-                        <div class="info-label">HỌ VÀ TÊN</div>
-                        <div class="info-val" id="dispFullName">-</div>
-                    </div>
-                    <div>
-                        <div class="info-label">SỐ ĐIỆN THOẠI</div>
-                        <div class="info-val" id="dispMobile">-</div>
-                    </div>
-                    <div>
-                        <div class="info-label">HẠNG THẺ HIỆN TẠI</div>
-                        <div class="info-val" id="dispTier" style="color: #fbbf24;">-</div>
+                        <div class="info-label">THỜI GIAN TẢI LÊN</div>
+                        <div class="info-val" id="lightboxUploadTime">-</div>
                     </div>
                 </div>
 
-                <div class="section-title" style="margin-top: 10px;">Dữ liệu đối soát (Xác thực cuối)</div>
-                <div class="form-group">
-                    <label>Mã gian hàng / Outlet Number</label>
-                    <input type="text" id="txtOutlet" class="form-control" placeholder="Mã gian hàng">
-                </div>
-                <div class="form-group">
-                    <label>Số hóa đơn / Bill Number</label>
-                    <input type="text" id="txtBillNo" class="form-control" placeholder="Số hóa đơn">
-                </div>
-                <div class="form-group">
-                    <label>Tổng tiền thanh toán (VNĐ)</label>
-                    <input type="number" id="txtTotal" class="form-control" placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label>Ngày giờ hóa đơn</label>
-                    <input type="datetime-local" id="txtDate" class="form-control">
-                </div>
-
-                <div class="form-group">
-                    <label>Gợi ý từ Auto-Approval Policy</label>
-                    <div id="dispPolicyHint" style="font-size: 12px; padding: 8px; border-radius: 6px; background: #0f172a; border: 1px solid #334155; color: #94a3b8;">
-                        Chưa chọn hóa đơn
+                <!-- OCR BÓC TÁCH (AI) -->
+                <div style="flex: 1; overflow-y: auto; padding-right: 4px;" id="modalScrollableContent">
+                    <div class="area-container area-ai" id="areaAiOcr">
+                        <div class="area-title">
+                            <span>🤖 KẾT QUẢ AI (OCR BÓC TÁCH)</span>
+                            <span id="aiConfidenceBadge" class="score-pill">Confidence: -</span>
+                        </div>
+                        <div id="aiOcrContentBody">
+                            <div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 20px;">
+                                Chưa chạy bóc tách. Bấm nút <strong>[Gọi OCR]</strong> bên dưới để trích xuất dữ liệu.
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="actions-panel">
-                    <button class="btn btn-danger" id="btnReject" onclick="openRejectModal()">Từ chối</button>
-                    <button class="btn btn-success" id="btnApprove" onclick="approveBill()">✓ Phê duyệt</button>
+                <!-- Action Buttons Panel inside Modal -->
+                <div style="display: flex; flex-direction: column; gap: 8px; padding-top: 14px; border-top: 1px solid var(--border); margin-top: auto;">
+                    <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);">
+                        Thao Tác Bóc Tách Trực Tiếp:
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <button class="btn btn-primary" id="btnModalOcr" onclick="triggerOcrFromModal()">
+                            <span>🔍 Gọi OCR</span>
+                        </button>
+                        <button class="btn btn-success" id="btnModalSave" onclick="saveOcrFromModal()" disabled>
+                            <span>💾 Lưu OCR</span>
+                        </button>
+                    </div>
+                    <button class="btn btn-purple" id="btnModal1Click" onclick="trigger1ClickFromModal()">
+                        <span>⚡ Gọi & Lưu OCR (1-Click)</span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Reject Modal -->
-    <div class="modal-overlay" id="rejectModal">
-        <div class="modal">
-            <h3 style="font-size: 16px;">Từ chối hóa đơn tích điểm</h3>
-            <div class="form-group">
-                <label>Lý do từ chối (gửi thông báo về Mobile App của khách):</label>
-                <select id="selRejectReason" class="form-control" onchange="document.getElementById('txtCustomReason').value = this.value;">
-                    <option value="Ảnh chụp mờ hoặc thiếu thông tin thanh toán.">Ảnh chụp mờ hoặc thiếu thông tin thanh toán</option>
-                    <option value="Hóa đơn đã quá hạn 48 giờ theo quy định.">Hóa đơn đã quá hạn 48 giờ</option>
-                    <option value="Gian hàng không thuộc phạm vi tích điểm Gigamall.">Gian hàng không thuộc phạm vi tích điểm</option>
-                    <option value="Hóa đơn trùng lặp đã được tích điểm trước đó.">Hóa đơn trùng lặp</option>
-                    <option value="Khác">Lý do khác...</option>
-                </select>
-                <textarea id="txtCustomReason" class="form-control" rows="3" placeholder="Nhập chi tiết lý do..."></textarea>
+    <!-- ================= RAW JSON MODAL ================= -->
+    <div class="json-modal-overlay" id="jsonModalOverlay" onclick="closeJsonModal(event)">
+        <div class="json-modal" onclick="event.stopPropagation()">
+            <div class="json-header">
+                <span id="jsonModalTitle">Raw OCR JSON Response</span>
+                <button class="btn btn-outline btn-sm" onclick="closeJsonModal()">✕ Đóng</button>
             </div>
-            <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                <button class="btn btn-outline" onclick="closeRejectModal()">Hủy</button>
-                <button class="btn btn-danger" onclick="confirmReject()">Xác nhận từ chối</button>
+            <pre class="json-body" id="jsonModalBody"></pre>
+        </div>
+    </div>
+
+    <!-- ================= MODAL TỪ CHỐI HÓA ĐƠN (TAB 2) ================= -->
+    <div class="lightbox-modal" id="rejectModal" style="display: none; z-index: 10001; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.82); backdrop-filter: blur(5px);">
+        <div style="background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px; width: 490px; max-width: 95vw; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6); overflow: hidden; animation: popIn 0.2s ease;">
+            <div style="padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--surface-2);">
+                <div style="font-weight: 700; color: #ef4444; font-size: 15px; display: flex; align-items: center; gap: 8px;">
+                    <span>❌ TỪ CHỐI HÓA ĐƠN</span>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="closeRejectModal()" title="Đóng">✕</button>
+            </div>
+            <div style="padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+                <div id="rejectBillInfoBox" style="font-size: 12px; color: var(--text-muted); background: #0f172a; padding: 10px 12px; border-radius: 6px; border: 1px solid #334155;">
+                    Đang từ chối hóa đơn...
+                </div>
+
+                <div class="form-group">
+                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">1. Chọn lý do mẫu thường dùng:</label>
+                    <select id="selRejectTemplate" class="form-control" onchange="onSelectRejectTemplate()" style="cursor: pointer;">
+                        <option value="">-- Chọn lý do mẫu hoặc tự nhập bên dưới --</option>
+                        <option value="Ảnh hóa đơn bị mờ, mất góc, không đọc được chi tiết thanh toán.">Ảnh hóa đơn bị mờ, mất góc, không đọc được chi tiết thanh toán.</option>
+                        <option value="Hóa đơn đã quá hạn đăng ký tích điểm theo quy chế của Gigamall.">Hóa đơn đã quá hạn đăng ký tích điểm theo quy chế của Gigamall.</option>
+                        <option value="Hóa đơn không thuộc danh sách gian hàng áp dụng chương trình tích điểm.">Hóa đơn không thuộc danh sách gian hàng áp dụng chương trình tích điểm.</option>
+                        <option value="Hóa đơn trùng lặp, đã được ghi nhận tích điểm trước đó.">Hóa đơn trùng lặp, đã được ghi nhận tích điểm trước đó.</option>
+                        <option value="Hóa đơn không có giá trị thanh toán hợp lệ hoặc đã bị hủy/hoàn tiền.">Hóa đơn không có giá trị thanh toán hợp lệ hoặc đã bị hủy/hoàn tiền.</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">2. Lý do chi tiết phản hồi đến hội viên (* bắt buộc):</label>
+                    <textarea id="txtRejectReason" class="form-control" rows="3" placeholder="Nhập lý do từ chối cụ thể để gửi thông báo đến hội viên..." style="resize: vertical;"></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--border);">
+                    <button class="btn btn-secondary" onclick="closeRejectModal()">Hủy bỏ</button>
+                    <button class="btn btn-danger" id="btnConfirmReject" onclick="confirmReject()">Xác nhận từ chối</button>
+                </div>
             </div>
         </div>
     </div>
 
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- SCRIPT APPLICATION LOGIC -->
     <script>
-        let currentBills = [];
-        let selectedBill = null;
+        // State
+        let pendingBills = [];
+        let pendingCurrentPage = 1;
+        let pendingPageSize = 25;
+        let pendingTotalCount = 0;
+        let pendingTotalPages = 1;
+        let sessionOcrCount = 0;
+        let sessionSavedCount = 0;
+        let ocrResultsCache = {}; // billId -> OcrExtractApiResponse
+        let filterOptionsCache = { brands: [], outlets: [] }; // Cache danh mục Brand/Outlet
 
-        async function loadPendingBills() {
-            try {
-                const res = await fetch('/api/bills/pending');
-                currentBills = await res.json();
-                document.getElementById('lblQueueCount').innerText = currentBills.length;
-                renderQueue();
-            } catch (err) {
-                console.error(err);
-                alert('Không thể tải danh sách hóa đơn: ' + err.message);
+        // Lightbox state & Navigation
+        let currentLightboxBillIndex = -1;
+        let currentLightboxBillId = null;
+
+        // Image zoom & Drag/Pan state
+        let currentZoom = 1;
+        let currentRotation = 0;
+        let panX = 0;
+        let panY = 0;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+
+        // Step 3 state
+        let reviewBills = [];
+        let selectedReviewBill = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            initDragAndPan();
+            initKeyboardShortcuts();
+            initReviewViewerEvents();
+
+            const btnSaveRotated = document.getElementById('btnSaveRotatedImage');
+            if (btnSaveRotated) {
+                btnSaveRotated.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (window.saveImageFromUI) window.saveImageFromUI();
+                });
+            }
+
+            // BƯỚC 1: Nạp cấu hình môi trường & tự động điền Từ ngày - Đến ngày từ appsetting TRƯỚC
+            await loadEnvironmentConfig();
+
+            // BƯỚC 2: Nạp danh mục Brand/Outlet
+            loadFilterOptions();
+
+            // BƯỚC 3: Nạp dữ liệu các tab (lúc này ngày đã được gán đầy đủ)
+            loadPendingUploadBills(1);
+            loadReviewBills();
+        });
+
+        // Tab Switching Logic (Strictly Isolated & Synchronized Filter)
+        function switchTab(tab) {
+            const btnTesting = document.getElementById('tabTesting');
+            const btnReview = document.getElementById('tabReview');
+            const viewTesting = document.getElementById('viewTesting');
+            const viewReview = document.getElementById('viewReview');
+            const selStatus = document.getElementById('selStatusFilter');
+            const pagingControls = document.getElementById('headerPagingControls');
+
+            if (tab === 'testing') {
+                btnTesting.classList.add('active');
+                btnReview.classList.remove('active');
+                viewTesting.classList.add('active');
+                viewReview.classList.remove('active');
+                if (selStatus) selStatus.value = '0';
+                if (pagingControls) pagingControls.style.display = 'flex';
+                loadPendingUploadBills(pendingCurrentPage);
+            } else {
+                btnTesting.classList.remove('active');
+                btnReview.classList.add('active');
+                viewTesting.classList.remove('active');
+                viewReview.classList.add('active');
+                if (selStatus) selStatus.value = '1';
+                if (pagingControls) pagingControls.style.display = 'none';
+                loadReviewBills();
             }
         }
 
-        function renderQueue() {
-            const listEl = document.getElementById('queueList');
-            listEl.innerHTML = '';
+        // Điều phối bộ lọc chung cho cả 2 Tab (Áp dụng khi bấm [Lọc], [Làm mới] hoặc gõ Enter trong ô tìm kiếm)
+        function applyCurrentFilter() {
+            const isTabTesting = document.getElementById('tabTesting').classList.contains('active');
+            if (isTabTesting) {
+                loadPendingUploadBills(1);
+            } else {
+                loadReviewBills();
+            }
+        }
 
-            if (currentBills.length === 0) {
-                listEl.innerHTML = '<div style="text-align: center; padding: 40px; color: #94a3b8;">Không có hóa đơn nào chờ duyệt! 🎉</div>';
-                clearWorkspace();
+        // Khi người dùng đổi dropdown Status trên Common Filter Bar
+        function onStatusFilterChange() {
+            const selStatus = document.getElementById('selStatusFilter');
+            const val = selStatus ? selStatus.value : '';
+            if (val === '0') {
+                switchTab('testing');
+            } else if (val === '1') {
+                switchTab('review');
+            } else {
+                applyCurrentFilter();
+            }
+        }
+
+        // Tải danh mục Brand và Outlet cho Header Filter (Task UI-HEADER)
+        async function loadFilterOptions() {
+            try {
+                const res = await fetch('/api/bills/filter-options');
+                if (!res.ok) return;
+                const data = await res.json();
+                filterOptionsCache = data;
+
+                const selBrand = document.getElementById('selBrandFilter');
+                if (selBrand && data.brands) {
+                    selBrand.innerHTML = '<option value="">Tất cả Brand</option>' + 
+                        data.brands.map(b => `<option value="${b}">${b}</option>`).join('');
+                }
+
+                updateOutletDropdown('');
+            } catch (err) {
+                console.warn('Lỗi tải danh mục filter options:', err);
+            }
+        }
+
+        function updateOutletDropdown(selectedBrand) {
+            const selOutlet = document.getElementById('selOutletFilter');
+            if (!selOutlet) return;
+
+            let filteredOutlets = filterOptionsCache.outlets || [];
+            if (selectedBrand) {
+                filteredOutlets = filteredOutlets.filter(o => !o.brandNumber || o.brandNumber === selectedBrand);
+            }
+
+            selOutlet.innerHTML = '<option value="">Tất cả Outlet</option>' +
+                filteredOutlets.map(o => `<option value="${o.outletNumber}">${o.outletName} (${o.outletNumber})</option>`).join('');
+        }
+
+        function onBrandFilterChange() {
+            const brandVal = document.getElementById('selBrandFilter')?.value || '';
+            updateOutletDropdown(brandVal);
+            applyCurrentFilter();
+        }
+
+        function clearAllFilters() {
+            const dpFrom = document.getElementById('dpFromDate');
+            const dpTo = document.getElementById('dpToDate');
+            const selBrand = document.getElementById('selBrandFilter');
+            const selOutlet = document.getElementById('selOutletFilter');
+            const selStatus = document.getElementById('selStatusFilter');
+            const txtSearch = document.getElementById('txtSearchPending');
+
+            if (dpFrom) dpFrom.value = '';
+            if (dpTo) dpTo.value = '';
+            if (selBrand) selBrand.value = '';
+            if (selOutlet) selOutlet.value = '';
+            if (txtSearch) txtSearch.value = '';
+
+            updateOutletDropdown('');
+            
+            const isTabTesting = document.getElementById('tabTesting').classList.contains('active');
+            if (selStatus) {
+                selStatus.value = isTabTesting ? '0' : '1';
+            }
+
+            applyCurrentFilter();
+            showToast('Đã xóa tất cả bộ lọc, hiển thị dữ liệu mặc định', 'info');
+        }
+
+        // Active filtered list helper
+        function getActivePendingList() {
+            const q = document.getElementById('txtSearchPending').value.trim().toLowerCase();
+            if (!q) return pendingBills;
+            return pendingBills.filter(b => 
+                (b.memID && b.memID.toLowerCase().includes(q)) ||
+                (b.imageFileName && b.imageFileName.toLowerCase().includes(q))
+            );
+        }
+
+        // Toast Helper
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️';
+            toast.innerHTML = `<span>${icon}</span><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // ================= GIAI ĐOẠN 2.1: TAB 1 (HÓA ĐƠN CHƯA OCR) =================
+
+        async function loadPendingUploadBills(page = 1) {
+            if (page < 1) page = 1;
+            pendingCurrentPage = page;
+            const tbody = document.getElementById('tblPendingBody');
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);"><span class="spinner"></span> Đang tải dữ liệu trang ${pendingCurrentPage}...</td></tr>`;
+
+            try {
+                const dpFrom = document.getElementById('dpFromDate');
+                const dpTo = document.getElementById('dpToDate');
+                const fromDateVal = dpFrom ? dpFrom.value : '';
+                const toDateVal = dpTo ? dpTo.value : '';
+
+                const selBrand = document.getElementById('selBrandFilter');
+                const selOutlet = document.getElementById('selOutletFilter');
+                const selStatus = document.getElementById('selStatusFilter');
+                const txtSearch = document.getElementById('txtSearchPending');
+
+                const brandVal = selBrand ? selBrand.value : '';
+                const outletVal = selOutlet ? selOutlet.value : '';
+                const statusVal = selStatus ? selStatus.value : '0';
+                const keywordVal = txtSearch ? txtSearch.value.trim() : '';
+
+                let url = `/api/bills/pending-upload?page=${pendingCurrentPage}&pageSize=${pendingPageSize}`;
+                if (fromDateVal) url += `&fromDate=${encodeURIComponent(fromDateVal)}`;
+                if (toDateVal) url += `&toDate=${encodeURIComponent(toDateVal)}`;
+                if (brandVal) url += `&brandNumber=${encodeURIComponent(brandVal)}`;
+                if (outletVal) url += `&outletNumber=${encodeURIComponent(outletVal)}`;
+                if (keywordVal) url += `&keyword=${encodeURIComponent(keywordVal)}`;
+                if (statusVal === '0') url += `&ocrStatus=false`;
+                else if (statusVal === '1') url += `&ocrStatus=true`;
+
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Không thể tải danh sách bill từ server');
+                const data = await res.json();
+
+                // Hỗ trợ cả 2 định dạng: PagedResultDto { items, totalCount, totalPages } hoặc Mảng raw [...]
+                if (data && typeof data === 'object' && Array.isArray(data.items)) {
+                    pendingBills = data.items;
+                    pendingTotalCount = data.totalCount ?? pendingBills.length;
+                    pendingTotalPages = data.totalPages > 0 ? data.totalPages : Math.ceil(pendingTotalCount / pendingPageSize) || 1;
+                } else if (Array.isArray(data)) {
+                    // Xử lý client-side pagination nếu backend tạm thời trả mảng
+                    pendingBills = data;
+                    pendingTotalCount = data.length;
+                    pendingTotalPages = Math.ceil(pendingTotalCount / pendingPageSize) || 1;
+                } else {
+                    pendingBills = [];
+                    pendingTotalCount = 0;
+                    pendingTotalPages = 1;
+                }
+
+                const badgePending = document.getElementById('badgePendingCount');
+                if (badgePending) badgePending.innerText = pendingTotalCount;
+                const kpiPending = document.getElementById('kpiPendingCount');
+                if (kpiPending) kpiPending.innerText = pendingTotalCount;
+
+                updatePaginationUI();
+                renderPendingTable(getActivePendingList());
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--danger); padding: 30px;">Lỗi tải dữ liệu: ${err.message}</td></tr>`;
+                showToast('Không thể tải danh sách bill: ' + err.message, 'error');
+            }
+        }
+
+        function updatePaginationUI() {
+            const lblCurrentPage = document.getElementById('lblCurrentPage');
+            if (lblCurrentPage) lblCurrentPage.innerText = pendingCurrentPage;
+
+            const lblTotalPages = document.getElementById('lblTotalPages');
+            if (lblTotalPages) lblTotalPages.innerText = pendingTotalPages;
+
+            const lblTotalBillsCount = document.getElementById('lblTotalBillsCount');
+            if (lblTotalBillsCount) lblTotalBillsCount.innerText = `(${pendingTotalCount.toLocaleString()} bill)`;
+
+            const btnPrev = document.getElementById('btnPrevPage');
+            if (btnPrev) btnPrev.disabled = (pendingCurrentPage <= 1);
+
+            const btnNext = document.getElementById('btnNextPage');
+            if (btnNext) btnNext.disabled = (pendingCurrentPage >= pendingTotalPages);
+
+            const btnFooterPrev = document.getElementById('btnFooterPrev');
+            if (btnFooterPrev) btnFooterPrev.disabled = (pendingCurrentPage <= 1);
+
+            const btnFooterNext = document.getElementById('btnFooterNext');
+            if (btnFooterNext) btnFooterNext.disabled = (pendingCurrentPage >= pendingTotalPages);
+
+            const lblFooterPageInfo = document.getElementById('lblFooterPageInfo');
+            if (lblFooterPageInfo) lblFooterPageInfo.innerText = `Trang ${pendingCurrentPage} / ${pendingTotalPages}`;
+
+            const lblFooterStats = document.getElementById('lblFooterStats');
+            if (lblFooterStats) {
+                if (pendingTotalCount === 0) {
+                    lblFooterStats.innerText = 'Không có hóa đơn nào';
+                } else {
+                    const fromIdx = (pendingCurrentPage - 1) * pendingPageSize + 1;
+                    const toIdx = Math.min(pendingCurrentPage * pendingPageSize, pendingTotalCount);
+                    lblFooterStats.innerText = `Hiển thị ${fromIdx} - ${toIdx} trong ${pendingTotalCount.toLocaleString()} hóa đơn`;
+                }
+            }
+        }
+
+        function changePage(delta) {
+            const targetPage = pendingCurrentPage + delta;
+            if (targetPage >= 1 && targetPage <= pendingTotalPages) {
+                loadPendingUploadBills(targetPage);
+            }
+        }
+
+        function changePageSize() {
+            const sel = document.getElementById('selPageSize');
+            if (sel) {
+                pendingPageSize = parseInt(sel.value, 10) || 25;
+                loadPendingUploadBills(1);
+            }
+        }
+
+        function onFilterDateChange() {
+            // Đã chọn ngày, có thể nhấn Lọc hoặc Enter
+        }
+
+        function clearDateFilter() {
+            const dpFrom = document.getElementById('dpFromDate');
+            const dpTo = document.getElementById('dpToDate');
+            if (dpFrom) dpFrom.value = '';
+            if (dpTo) dpTo.value = '';
+            loadPendingUploadBills(1);
+            showToast('Đã xóa bộ lọc ngày, hiển thị tất cả hóa đơn.', 'info');
+        }
+
+        function renderPendingTable(bills) {
+            const tbody = document.getElementById('tblPendingBody');
+            tbody.innerHTML = '';
+
+            if (bills.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 50px; color: var(--text-muted);">
+                            <div style="font-size: 24px; margin-bottom: 8px;">🎉</div>
+                            <div style="font-size: 14px; font-weight: 600;">Hiện không có hóa đơn nào chưa OCR trong CSDL!</div>
+                            <div style="font-size: 12px; margin-top: 6px; color: var(--text-dim);">Bấm nút <b>[🌱 Nạp 5 Bill Mẫu]</b> ở thanh công cụ phía trên để nạp ảnh thực tế vào CSDL thử nghiệm ngay.</div>
+                        </td>
+                    </tr>`;
                 return;
             }
 
-            currentBills.forEach(b => {
+            bills.forEach((b, idx) => {
+                const tr = document.createElement('tr');
+                tr.id = `row-${b.id}`;
+
+                // OCR Preview Column Content
+                let ocrContentHtml = '';
+                const cached = ocrResultsCache[b.id];
+                if (cached && cached.data) {
+                    ocrContentHtml = renderOcrBox(b.id, cached);
+                } else if (b.scannedBillNumber || b.scannedBillTotal) {
+                    ocrContentHtml = renderExistingOcrBox(b);
+                } else {
+                    ocrContentHtml = `
+                        <div class="ocr-preview-box" id="ocr-box-${b.id}">
+                            <div class="ocr-empty">
+                                <span>📄</span> Chưa có dữ liệu OCR. Bấm <b>[🔍 Gọi OCR]</b> để bóc tách.
+                            </div>
+                        </div>`;
+                }
+
+                // Format Time
+                const uploadDate = new Date(b.uploadImageDateTime);
+                const timeStr = !isNaN(uploadDate) ? uploadDate.toLocaleString('vi-VN') : 'Vừa xong';
+
+                // Image URL
+                const imgUrl = b.imageUrl || `/api/bills/${b.id}/image`;
+
+                tr.innerHTML = `
+                    <td class="col-id">${(pendingCurrentPage - 1) * pendingPageSize + idx + 1}</td>
+                    <td class="col-member">
+                        <div class="mem-badge">${b.memID || 'UNKNOWN'}</div>
+                        <div class="time-text">🕒 ${timeStr}</div>
+                        <div class="filename-text" title="${b.imageFileName || ''}">${b.imageFileName ? (b.imageFileName.length > 20 ? b.imageFileName.substring(0, 18) + '...' : b.imageFileName) : 'image.png'}</div>
+                    </td>
+                    <td class="col-image">
+                        <div class="thumb-wrap" onclick="openLightbox('${b.id}')">
+                            <img src="${imgUrl}" alt="Bill" onerror="this.src='https://placehold.co/100x130/1e293b/f8fafc?text=No+Img'">
+                            <div class="thumb-overlay">🔍 Xem</div>
+                        </div>
+                    </td>
+                    <td class="col-ocr" id="ocr-cell-${b.id}">
+                        ${ocrContentHtml}
+                    </td>
+                    <td class="col-actions">
+                        <div class="action-cell">
+                            <div class="btn-group-row">
+                                <button class="btn btn-primary btn-sm" id="btn-ocr-${b.id}" onclick="triggerOcr('${b.id}')">
+                                    <span>🔍 Gọi OCR</span>
+                                </button>
+                                <button class="btn btn-success btn-sm" id="btn-save-${b.id}" onclick="saveOcr('${b.id}')" ${cached ? '' : 'disabled'}>
+                                    <span>💾 Lưu OCR</span>
+                                </button>
+                            </div>
+                            <button class="btn btn-outline btn-sm" style="margin-top: 4px; font-size: 11px; padding: 4px 8px;" onclick="trigger1Click('${b.id}')">
+                                <span>⚡ 1-Click OCR & Lưu</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderOcrBox(billId, ocrResp) {
+            const d = ocrResp.data || {};
+            const totalFormatted = d.billTotal ? Number(d.billTotal).toLocaleString('vi-VN') + ' đ' : 'Chưa rõ';
+            const latency = ocrResp.latencySeconds ? ocrResp.latencySeconds.toFixed(2) + 's' : '1.19s';
+            const score = d.matchScore ? Math.round(d.matchScore * 100) + '%' : '98%';
+            const conf = d.confidence ? Math.round(d.confidence * 100) + '%' : '95%';
+
+            return `
+                <div class="ocr-preview-box" id="ocr-box-${billId}">
+                    <div class="ocr-row">
+                        <span class="ocr-outlet">🏪 ${d.outletName || d.brandName || 'Chưa định danh gian hàng'}</span>
+                        <span class="ocr-amount">${totalFormatted}</span>
+                    </div>
+                    <div class="ocr-row">
+                        <span class="ocr-billno">🧾 Số bill: <b>${d.billNumber || 'Không tìm thấy'}</b></span>
+                        <span class="ocr-datetime">📅 ${d.billDatetime || 'N/A'}</span>
+                    </div>
+                    <div class="ocr-score">
+                        <span class="score-pill">Mã: ${d.outletNumber || 'N/A'}</span>
+                        <span class="score-pill">Khớp: ${score}</span>
+                        <span class="score-pill">Tin cậy: ${conf}</span>
+                        <span style="margin-left: auto; cursor: pointer; color: #38bdf8; text-decoration: underline;" onclick="viewRawJson('${billId}')">Raw JSON (${latency})</span>
+                    </div>
+                </div>`;
+        }
+
+        function renderExistingOcrBox(b) {
+            const totalFormatted = b.scannedBillTotal ? Number(b.scannedBillTotal).toLocaleString('vi-VN') + ' đ' : 'Chưa rõ';
+            return `
+                <div class="ocr-preview-box" id="ocr-box-${b.id}">
+                    <div class="ocr-row">
+                        <span class="ocr-outlet">🏪 ${b.scannedOutletName || b.scannedBrandName || 'Gian hàng'}</span>
+                        <span class="ocr-amount">${totalFormatted}</span>
+                    </div>
+                    <div class="ocr-row">
+                        <span class="ocr-billno">🧾 Số bill: <b>${b.scannedBillNumber || 'N/A'}</b></span>
+                        <span class="ocr-datetime">📅 ${b.scannedBillDateTime || 'N/A'}</span>
+                    </div>
+                    <div class="ocr-score">
+                        <span class="score-pill">Mã gian: ${b.scannedOutletNumber || 'N/A'}</span>
+                        <span style="margin-left: auto; color: #34d399;">Dữ liệu từ CSDL</span>
+                    </div>
+                </div>`;
+        }
+
+        // Trigger OCR Action (From List or Modal)
+        async function triggerOcr(billId) {
+            const btnOcr = document.getElementById(`btn-ocr-${billId}`);
+            const ocrCell = document.getElementById(`ocr-cell-${billId}`);
+            const statusCell = document.getElementById(`status-cell-${billId}`);
+            const btnSave = document.getElementById(`btn-save-${billId}`);
+
+            if (btnOcr) {
+                btnOcr.disabled = true;
+                btnOcr.innerHTML = '<span class="spinner"></span> Quét...';
+            }
+
+            if (ocrCell) {
+                ocrCell.innerHTML = `
+                    <div class="ocr-loading">
+                        <span class="spinner"></span>
+                        <span>Đang gửi ảnh sang máy chủ AI OCR (14.161.34.37:8080)...</span>
+                    </div>`;
+            }
+
+            try {
+                const res = await fetch(`/api/bills/${billId}/ocr`, { method: 'POST' });
+                const result = await res.json();
+
+                if (!result.success) {
+                    throw new Error(result.message || 'Bóc tách thất bại');
+                }
+
+                ocrResultsCache[billId] = result;
+                sessionOcrCount++;
+                document.getElementById('kpiOcrCount').innerText = sessionOcrCount;
+
+                // Update List Row UI if present
+                if (ocrCell) ocrCell.innerHTML = renderOcrBox(billId, result);
+                if (statusCell) statusCell.innerHTML = '<span class="status-pill status-ocr-done">⚡ Đã có kết quả AI</span>';
+                if (btnSave) btnSave.disabled = false;
+
+                showToast(`✅ Đã nhận dạng xong bill ${result.data ? result.data.billNumber : ''} (${result.latencySeconds ? result.latencySeconds.toFixed(1) : 1.2}s)`, 'success');
+                return result;
+            } catch (err) {
+                console.error(err);
+                if (ocrCell) {
+                    ocrCell.innerHTML = `
+                        <div class="ocr-preview-box" style="border-color: var(--danger);">
+                            <div style="color: #f87171;">❌ Lỗi bóc tách: ${err.message}</div>
+                        </div>`;
+                }
+                showToast('Lỗi OCR: ' + err.message, 'error');
+                throw err;
+            } finally {
+                if (btnOcr) {
+                    btnOcr.disabled = false;
+                    btnOcr.innerHTML = '<span>🔍 Gọi lại OCR</span>';
+                }
+            }
+        }
+
+        // Save OCR Action (From List or Modal)
+        async function saveOcr(billId) {
+            const cached = ocrResultsCache[billId];
+            if (!cached || !cached.data) {
+                showToast('Chưa có kết quả OCR để lưu! Vui lòng bấm [Gọi OCR] trước.', 'error');
+                return false;
+            }
+
+            const btnSave = document.getElementById(`btn-save-${billId}`);
+            const statusCell = document.getElementById(`status-cell-${billId}`);
+
+            if (btnSave) {
+                btnSave.disabled = true;
+                btnSave.innerHTML = '<span class="spinner"></span> Lưu...';
+            }
+
+            const d = cached.data;
+            const req = {
+                outletNumber: d.outletNumber,
+                brandNumber: d.brandNumber,
+                outletName: d.outletName,
+                brandName: d.brandName,
+                billNumber: d.billNumber,
+                billDateTime: d.billDatetime,
+                billTotal: d.billTotal ? d.billTotal.toString() : null,
+                cashierName: d.cashierName,
+                rawOcrResponse: cached.rawOutput
+            };
+
+            try {
+                const res = await fetch(`/api/bills/${billId}/save-ocr`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(req)
+                });
+                const result = await res.json();
+
+                if (!result.success) throw new Error(result.message || 'Lưu CSDL thất bại');
+
+                sessionSavedCount++;
+                document.getElementById('kpiSavedCount').innerText = sessionSavedCount;
+
+                // Update bill object in array
+                const bill = pendingBills.find(b => b.id === billId);
+                if (bill) {
+                    bill.dataStatus = 'OCR';
+                    bill.ocrStatus = true;
+                }
+
+                if (statusCell) statusCell.innerHTML = '<span class="status-pill status-saved">✅ Đã lưu CSDL</span>';
+                showToast('✅ Đã lưu kết quả OCR vào CSDL (OCRStatus = 1)! Hóa đơn đã sẵn sàng chuyển sang Tab 2.', 'success');
+
+                // Refresh Tab 2 review count in background
+                loadReviewBills();
+                return true;
+            } catch (err) {
+                showToast('Lỗi lưu CSDL: ' + err.message, 'error');
+                if (btnSave) btnSave.disabled = false;
+                return false;
+            } finally {
+                if (btnSave) btnSave.innerHTML = '<span>💾 Đã Lưu</span>';
+            }
+        }
+
+        // 1-Click OCR & Save (From List)
+        async function trigger1Click(billId) {
+            try {
+                await triggerOcr(billId);
+                if (ocrResultsCache[billId]) {
+                    await saveOcr(billId);
+                }
+            } catch {}
+        }
+
+        // Seed Sample Bills
+        // Seed Sample Bills (Disabled)
+        async function seedSampleBills() {
+            // Function disabled per UI requirements
+        }
+
+        // Filter pending table
+        function filterPendingTable() {
+            const filtered = getActivePendingList();
+            renderPendingTable(filtered);
+        }
+
+        // ================= LIGHTBOX & DETAIL MODAL (TAB 1) =================
+
+        function openLightbox(billId) {
+            const activeList = getActivePendingList();
+            const idx = activeList.findIndex(b => b.id === billId);
+            currentLightboxBillIndex = idx !== -1 ? idx : 0;
+
+            resetImageTransform();
+            loadLightboxBillAtIndex(currentLightboxBillIndex);
+
+            const modal = document.getElementById('lightboxModal');
+            modal.style.display = 'flex';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightboxModal').style.display = 'none';
+        }
+
+        // Next & Previous Bill Navigation
+        function navigateLightbox(step) {
+            const activeList = getActivePendingList();
+            if (activeList.length === 0) return;
+
+            let newIdx = currentLightboxBillIndex + step;
+            if (newIdx < 0 || newIdx >= activeList.length) return;
+
+            currentLightboxBillIndex = newIdx;
+            resetImageTransform();
+            loadLightboxBillAtIndex(currentLightboxBillIndex);
+        }
+
+        function loadLightboxBillAtIndex(idx) {
+            const activeList = getActivePendingList();
+            if (idx < 0 || idx >= activeList.length) return;
+
+            const b = activeList[idx];
+            currentLightboxBillId = b.id;
+
+            // Update Counter & Titles
+            document.getElementById('lightboxCounter').innerText = `${idx + 1} / ${activeList.length}`;
+            document.getElementById('lightboxFileName').innerText = b.imageFileName || `Hóa đơn ${b.id}`;
+            document.getElementById('lightboxMemId').innerText = b.memID || 'UNKNOWN';
+
+            const uploadDate = new Date(b.uploadImageDateTime);
+            document.getElementById('lightboxUploadTime').innerText = !isNaN(uploadDate) ? uploadDate.toLocaleString('vi-VN') : 'Vừa xong';
+
+            // Update Prev / Next buttons state in toolbar
+            document.getElementById('btnLightboxPrev').disabled = (idx === 0);
+            document.getElementById('btnLightboxNext').disabled = (idx === activeList.length - 1);
+
+            // Update Floating Prev / Next buttons
+            const floatPrev = document.getElementById('floatPrevBtn');
+            const floatNext = document.getElementById('floatNextBtn');
+            if (floatPrev) floatPrev.style.display = (idx === 0) ? 'none' : 'flex';
+            if (floatNext) floatNext.style.display = (idx === activeList.length - 1) ? 'none' : 'flex';
+
+            // Update Image
+            const imgUrl = b.imageUrl || `/api/bills/${b.id}/image`;
+            const imgEl = document.getElementById('lightboxImg');
+            imgEl.src = imgUrl;
+
+            // Update Sidebar OCR View & Actions
+            updateModalOcrView(b);
+        }
+
+        // Render OCR View & Actions inside Detail Modal
+        // Render OCR View & Actions inside Detail Modal
+        function updateModalOcrView(b) {
+            const billId = b.id;
+            const aiBody = document.getElementById('aiOcrContentBody');
+            const aiConfidenceBadge = document.getElementById('aiConfidenceBadge');
+            const statusBadge = document.getElementById('lightboxStatusBadge');
+            const btnSave = document.getElementById('btnModalSave');
+            const btnOcr = document.getElementById('btnModalOcr');
+
+
+            const cached = ocrResultsCache[billId];
+
+            if (b.dataStatus === 'OCR' || b.ocrStatus === true) {
+                statusBadge.className = 'status-pill status-saved';
+                statusBadge.innerHTML = '✅ Đã lưu CSDL (OCRStatus = 1)';
+                if (btnSave) {
+                    btnSave.disabled = true;
+                    btnSave.innerHTML = '<span>💾 Đã Lưu CSDL</span>';
+                }
+            } else if (cached && cached.data) {
+                statusBadge.className = 'status-pill status-ocr-done';
+                statusBadge.innerHTML = '⚡ Đã có kết quả AI';
+                if (btnSave) {
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = '<span>💾 Lưu OCR</span>';
+                }
+            } else {
+                statusBadge.className = 'status-pill status-pending';
+                statusBadge.innerHTML = '⏳ Chưa OCR';
+                if (btnSave) {
+                    btnSave.disabled = true;
+                    btnSave.innerHTML = '<span>💾 Lưu OCR</span>';
+                }
+            }
+
+            if (cached && cached.data) {
+                const d = cached.data;
+                const totalFormatted = d.billTotal ? Number(d.billTotal).toLocaleString('vi-VN') + ' đ' : 'Chưa rõ';
+                const latency = cached.latencySeconds ? cached.latencySeconds.toFixed(2) + 's' : '1.19s';
+                const score = d.matchScore ? Math.round(d.matchScore * 100) + '%' : '98%';
+                const conf = d.confidence ? Math.round(d.confidence * 100) + '%' : '95%';
+
+                if (aiConfidenceBadge) {
+                    aiConfidenceBadge.innerText = `Match: ${score} | Conf: ${conf}`;
+                    aiConfidenceBadge.style.display = 'inline-block';
+                }
+
+                if (aiBody) {
+                    aiBody.innerHTML = `
+                        <div class="ocr-preview-box" style="margin-top: 4px;">
+                            <div class="info-label">GIAN HÀNG / THƯƠNG HIỆU</div>
+                            <div class="info-val" style="color: #38bdf8; font-size: 14px;">${d.outletName || d.brandName || 'Chưa định danh'} (${d.outletNumber || 'N/A'})</div>
+                            
+                            <div class="info-label" style="margin-top: 10px;">SỐ HÓA ĐƠN</div>
+                            <div class="info-val" style="font-family: 'JetBrains Mono', monospace; font-size: 14px;">${d.billNumber || 'Không tìm thấy'}</div>
+                            
+                            <div class="info-label" style="margin-top: 10px;">TỔNG TIỀN THANH TOÁN</div>
+                            <div class="info-val" style="color: #34d399; font-size: 18px; font-weight: 800;">${totalFormatted}</div>
+                            
+                            <div class="info-label" style="margin-top: 10px;">NGÀY GIỜ GIAO DỊCH</div>
+                            <div class="info-val">${d.billDatetime || 'N/A'}</div>
+                            
+                            <div class="info-label" style="margin-top: 10px;">ĐỘ TIN CẬY & ĐỘ TRỄ AI</div>
+                            <div style="display: flex; gap: 6px; margin-top: 4px; align-items: center; flex-wrap: wrap;">
+                                <span class="score-pill">Khớp: ${score}</span>
+                                <span class="score-pill">Tin cậy: ${conf}</span>
+                                <span class="score-pill" style="background: rgba(16, 185, 129, 0.2); color: #34d399;">⏱️ ${latency}</span>
+                            </div>
+                            <button class="btn btn-outline btn-sm" style="margin-top: 12px; width: 100%; justify-content: center;" onclick="viewRawJson('${billId}')">
+                                📄 Xem Raw JSON Chi Tiết
+                            </button>
+                        </div>
+                    `;
+                }
+                if (btnSave) btnSave.disabled = (b.dataStatus === 'OCR' || b.ocrStatus === true);
+            } else if (b.scannedBillNumber || b.scannedBillTotal) {
+                const totalFormatted = b.scannedBillTotal ? Number(b.scannedBillTotal).toLocaleString('vi-VN') + ' đ' : 'Chưa rõ';
+                if (aiConfidenceBadge) {
+                    aiConfidenceBadge.innerText = 'Đã có dữ liệu DB';
+                    aiConfidenceBadge.style.display = 'inline-block';
+                }
+                if (aiBody) {
+                    aiBody.innerHTML = `
+                        <div class="ocr-preview-box" style="margin-top: 4px;">
+                            <div class="info-label">GIAN HÀNG</div>
+                            <div class="info-val" style="color: #38bdf8;">${b.scannedOutletName || b.scannedBrandName || 'Gian hàng'} (${b.scannedOutletNumber || 'N/A'})</div>
+                            <div class="info-label" style="margin-top: 8px;">SỐ HÓA ĐƠN</div>
+                            <div class="info-val">${b.scannedBillNumber || 'N/A'}</div>
+                            <div class="info-label" style="margin-top: 8px;">TỔNG TIỀN</div>
+                            <div class="info-val" style="color: #34d399; font-size: 16px;">${totalFormatted}</div>
+                            <div class="info-label" style="margin-top: 8px;">NGÀY GIỜ</div>
+                            <div class="info-val">${b.scannedBillDateTime || 'N/A'}</div>
+                            <div style="margin-top: 8px; color: #34d399; font-size: 11px;">(Dữ liệu có sẵn trong CSDL)</div>
+                        </div>
+                    `;
+                }
+                if (btnSave) btnSave.disabled = true;
+            } else {
+                if (aiConfidenceBadge) {
+                    aiConfidenceBadge.innerText = 'Confidence: -';
+                }
+                if (aiBody) {
+                    aiBody.innerHTML = `
+                        <div style="color: var(--text-dim); font-size: 13px; line-height: 1.6; padding: 24px 12px; text-align: center; background: rgba(0,0,0,0.25); border-radius: 8px; margin-top: 4px; border: 1px dashed var(--border);">
+                            <div style="font-size: 32px; margin-bottom: 8px;">📄</div>
+                            Hóa đơn này chưa được gọi bóc tách OCR.<br>
+                            Bấm nút <b>[🔍 Gọi OCR]</b> bên dưới để AI tiến hành nhận diện.
+                        </div>
+                    `;
+                }
+                if (btnSave) btnSave.disabled = true;
+            }
+
+            if (btnOcr) {
+                btnOcr.disabled = false;
+                btnOcr.innerHTML = '<span>🔍 Gọi OCR</span>';
+            }
+        }
+
+        // Trigger OCR from Modal
+        async function triggerOcrFromModal() {
+            if (!currentLightboxBillId) return;
+            const billId = currentLightboxBillId;
+            const btnOcr = document.getElementById('btnModalOcr');
+            const aiBody = document.getElementById('aiOcrContentBody');
+
+            if (btnOcr) {
+                btnOcr.disabled = true;
+                btnOcr.innerHTML = '<span class="spinner"></span> Đang OCR...';
+            }
+
+            if (aiBody) {
+                aiBody.innerHTML = `
+                    <div class="ocr-loading" style="padding: 24px 10px; justify-content: center; flex-direction: column; text-align: center;">
+                        <span class="spinner" style="width: 28px; height: 28px;"></span>
+                        <span style="margin-top: 12px;">Đang gửi ảnh sang máy chủ AI OCR...<br><small style="color: var(--text-dim);">Máy chủ: 14.161.34.37:8080</small></span>
+                    </div>`;
+            }
+
+            try {
+                await triggerOcr(billId);
+                const activeList = getActivePendingList();
+                const b = activeList.find(x => x.id === billId);
+                if (b) updateModalOcrView(b);
+            } catch (err) {
+                if (aiBody) {
+                    aiBody.innerHTML = `
+                        <div class="ocr-preview-box" style="border-color: var(--danger); margin-top: 10px;">
+                            <div style="color: #f87171;">❌ Lỗi bóc tách: ${err.message}</div>
+                        </div>`;
+                }
+            } finally {
+                if (btnOcr) {
+                    btnOcr.disabled = false;
+                    btnOcr.innerHTML = '<span>🔍 Gọi lại OCR</span>';
+                }
+            }
+        }
+
+        // Save OCR from Modal
+        async function saveOcrFromModal() {
+            if (!currentLightboxBillId) return;
+            const billId = currentLightboxBillId;
+            const btnSave = document.getElementById('btnModalSave');
+
+            if (btnSave) {
+                btnSave.disabled = true;
+                btnSave.innerHTML = '<span class="spinner"></span> Đang Lưu...';
+            }
+
+            try {
+                const ok = await saveOcr(billId);
+                const activeList = getActivePendingList();
+                const b = activeList.find(x => x.id === billId);
+                if (b) {
+                    if (ok) {
+                        b.dataStatus = 'OCR';
+                        b.ocrStatus = true;
+                        showToast('Đã lưu kết quả OCR vào CSDL (OCRStatus = 1)', 'success');
+                    }
+                    updateModalOcrView(b);
+                } else if (ok && btnSave) {
+                    btnSave.disabled = true;
+                    btnSave.innerHTML = '<span>💾 Đã Lưu CSDL</span>';
+                }
+
+                // Auto refresh list
+                loadPendingUploadBills(pendingCurrentPage);
+            } catch (err) {
+                showToast('Lỗi khi lưu OCR: ' + err.message, 'error');
+            } finally {
+                if (btnSave && btnSave.innerHTML.includes('Đang Lưu')) {
+                    btnSave.disabled = false;
+                    btnSave.innerHTML = '<span>💾 Lưu OCR</span>';
+                }
+            }
+        }
+
+        // 1-Click OCR & Save from Modal
+        async function trigger1ClickFromModal() {
+            await triggerOcrFromModal();
+            if (ocrResultsCache[currentLightboxBillId]) {
+                await saveOcrFromModal();
+            }
+        }
+
+        // Drag & Drop Pan + Zoom implementation
+        function initDragAndPan() {
+            const bodyEl = document.getElementById('lightboxBody');
+            if (!bodyEl) return;
+
+            bodyEl.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return; // Only left button
+                isDragging = true;
+                dragStartX = e.clientX - panX;
+                dragStartY = e.clientY - panY;
+                bodyEl.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                panX = e.clientX - dragStartX;
+                panY = e.clientY - dragStartY;
+                applyImageTransform();
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    const b = document.getElementById('lightboxBody');
+                    if (b) b.style.cursor = 'grab';
+                }
+            });
+
+            // Mouse wheel zoom
+            bodyEl.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY < 0 ? 0.15 : -0.15;
+                zoomImage(delta);
+            }, { passive: false });
+        }
+
+        function zoomImage(delta) {
+            currentZoom = Math.max(0.4, Math.min(4.5, currentZoom + delta));
+            applyImageTransform();
+        }
+
+        function rotateImage(deg) {
+            currentRotation = (currentRotation + deg) % 360;
+            applyImageTransform();
+        }
+
+        function resetImageTransform() {
+            currentZoom = 1;
+            currentRotation = 0;
+            panX = 0;
+            panY = 0;
+            applyImageTransform();
+        }
+
+        function applyImageTransform() {
+            const wrapper = document.getElementById('lightboxImgWrapper');
+            if (wrapper) {
+                wrapper.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoom}) rotate(${currentRotation}deg)`;
+            }
+        }
+
+        // Ghi đè file ảnh từ giao diện (sau khi xoay và zoom/crop viewport) xuống đĩa cứng
+        window.saveImageFromUI = saveImageFromUI;
+        async function saveImageFromUI() {
+            if (!currentLightboxBillId) {
+                showToast('Không xác định được mã hóa đơn hiện tại.', 'error');
+                return;
+            }
+            const btn = document.getElementById('btnSaveRotatedImage');
+            const img = document.getElementById('lightboxImg');
+            const bodyEl = document.getElementById('lightboxBody');
+
+            if (!img || !img.naturalWidth || !img.naturalHeight) {
+                showToast('Ảnh chưa được nạp đầy đủ, vui lòng chờ trong giây lát!', 'error');
+                return;
+            }
+
+            const originalText = btn ? btn.innerHTML : '💾 Lưu Ảnh';
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner"></span> Đang lưu...';
+            }
+
+            try {
+                // 1. Chuẩn hóa góc xoay (0, 90, 180, 270)
+                const rot = ((currentRotation % 360) + 360) % 360;
+
+                // 2. Kích thước ảnh sau khi xoay đúng hướng (Upright Full-Resolution Canvas)
+                const isRotated90or270 = (rot === 90 || rot === 270);
+                const fullCanvas = document.createElement('canvas');
+                fullCanvas.width = isRotated90or270 ? img.naturalHeight : img.naturalWidth;
+                fullCanvas.height = isRotated90or270 ? img.naturalWidth : img.naturalHeight;
+                const fullCtx = fullCanvas.getContext('2d');
+
+                fullCtx.save();
+                if (rot === 90) {
+                    fullCtx.translate(fullCanvas.width, 0);
+                    fullCtx.rotate(90 * Math.PI / 180);
+                } else if (rot === 180) {
+                    fullCtx.translate(fullCanvas.width, fullCanvas.height);
+                    fullCtx.rotate(180 * Math.PI / 180);
+                } else if (rot === 270) {
+                    fullCtx.translate(0, fullCanvas.height);
+                    fullCtx.rotate(270 * Math.PI / 180);
+                }
+                fullCtx.drawImage(img, 0, 0);
+                fullCtx.restore();
+
+                let finalCanvas = fullCanvas;
+                let isCropped = false;
+
+                // 3. Tính toán vùng Crop nếu người dùng có phóng to (Zoom) hoặc kéo rê (Pan)
+                if (bodyEl && img.offsetWidth && img.offsetHeight) {
+                    const bodyRect = bodyEl.getBoundingClientRect();
+                    const bodyStyle = window.getComputedStyle(bodyEl);
+                    const padLeft = parseFloat(bodyStyle.paddingLeft) || 0;
+                    const padRight = parseFloat(bodyStyle.paddingRight) || 0;
+                    const padTop = parseFloat(bodyStyle.paddingTop) || 0;
+                    const padBottom = parseFloat(bodyStyle.paddingBottom) || 0;
+
+                    // Viewport hiển thị khả dụng trong lightboxBody (đã trừ padding)
+                    const viewLeft = bodyRect.left + padLeft;
+                    const viewRight = bodyRect.right - padRight;
+                    const viewTop = bodyRect.top + padTop;
+                    const viewBottom = bodyRect.bottom - padBottom;
+                    const viewWidth = Math.max(1, viewRight - viewLeft);
+                    const viewHeight = Math.max(1, viewBottom - viewTop);
+
+                    // Kích thước hiển thị của ảnh trên màn hình trước khi transform
+                    const unzoomedDispW = isRotated90or270 ? img.offsetHeight : img.offsetWidth;
+                    const unzoomedDispH = isRotated90or270 ? img.offsetWidth : img.offsetHeight;
+
+                    // Kích thước visual của ảnh sau khi Zoom
+                    const visW = unzoomedDispW * currentZoom;
+                    const visH = unzoomedDispH * currentZoom;
+
+                    // Tọa độ tâm ảnh trên màn hình (tính cả độ lệch kéo chuột panX, panY)
+                    const imgCenterX = viewLeft + (viewWidth / 2) + panX;
+                    const imgCenterY = viewTop + (viewHeight / 2) + panY;
+
+                    // Bounding box của ảnh trên màn hình
+                    const imgLeft = imgCenterX - (visW / 2);
+                    const imgRight = imgCenterX + (visW / 2);
+                    const imgTop = imgCenterY - (visH / 2);
+                    const imgBottom = imgCenterY + (visH / 2);
+
+                    // Phần giao nhau giữa Viewport hiển thị và Bounding Box của ảnh
+                    const cropLeft = Math.max(imgLeft, viewLeft);
+                    const cropRight = Math.min(imgRight, viewRight);
+                    const cropTop = Math.max(imgTop, viewTop);
+                    const cropBottom = Math.min(imgBottom, viewBottom);
+
+                    // Kiểm tra xem có thực sự giao nhau và tạo thành vùng hiển thị hợp lệ
+                    if (cropRight > cropLeft && cropBottom > cropTop) {
+                        const scaleX = fullCanvas.width / visW;
+                        const scaleY = fullCanvas.height / visH;
+
+                        let srcX = Math.round((cropLeft - imgLeft) * scaleX);
+                        let srcY = Math.round((cropTop - imgTop) * scaleY);
+                        let srcW = Math.round((cropRight - cropLeft) * scaleX);
+                        let srcH = Math.round((cropBottom - cropTop) * scaleY);
+
+                        // Clamp chuẩn xác trong phạm vi pixel của fullCanvas
+                        srcX = Math.max(0, Math.min(fullCanvas.width - 1, srcX));
+                        srcY = Math.max(0, Math.min(fullCanvas.height - 1, srcY));
+                        srcW = Math.max(1, Math.min(fullCanvas.width - srcX, srcW));
+                        srcH = Math.max(1, Math.min(fullCanvas.height - srcY, srcH));
+
+                        // Chỉ crop nếu kích thước vùng nhìn nhỏ hơn ít nhất 2% so với toàn ảnh
+                        if (srcW < fullCanvas.width * 0.98 || srcH < fullCanvas.height * 0.98) {
+                            const cropCanvas = document.createElement('canvas');
+                            cropCanvas.width = srcW;
+                            cropCanvas.height = srcH;
+                            const cropCtx = cropCanvas.getContext('2d');
+                            cropCtx.drawImage(fullCanvas, srcX, srcY, srcW, srcH, 0, 0, srcW, srcH);
+                            finalCanvas = cropCanvas;
+                            isCropped = true;
+                        }
+                    }
+                }
+
+                // 4. Chuyển canvas thành Blob PNG an toàn (có timeout dự phòng chống treo promise)
+                const blob = await new Promise((resolve, reject) => {
+                    let settled = false;
+                    try {
+                        finalCanvas.toBlob((b) => {
+                            if (!settled) {
+                                settled = true;
+                                if (b) resolve(b);
+                                else reject(new Error('Canvas toBlob trả về rỗng'));
+                            }
+                        }, 'image/png');
+                    } catch (e) {
+                        settled = true;
+                        reject(e);
+                    }
+                    setTimeout(() => {
+                        if (!settled) {
+                            settled = true;
+                            try {
+                                const dataUrl = finalCanvas.toDataURL('image/png');
+                                const arr = dataUrl.split(',');
+                                const mime = arr[0].match(/:(.*?);/)[1];
+                                const bstr = atob(arr[1]);
+                                let n = bstr.length;
+                                const u8arr = new Uint8Array(n);
+                                while (n--) {
+                                    u8arr[n] = bstr.charCodeAt(n);
+                                }
+                                resolve(new Blob([u8arr], { type: mime }));
+                            } catch (err2) {
+                                reject(err2);
+                            }
+                        }
+                    }, 2500);
+                });
+                if (!blob) throw new Error('Không thể trích xuất dữ liệu ảnh từ giao diện');
+
+                const formData = new FormData();
+                formData.append('file', blob, `${currentLightboxBillId}.png`);
+
+                const res = await fetch(`/api/bills/${currentLightboxBillId}/save-image`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await res.json();
+                if (!result.success) throw new Error(result.message || 'Lỗi lưu tệp ảnh');
+
+                // 5. Thành công: Reset transform về mặc định (vì ảnh mới đã được xoay và crop chuẩn trên đĩa)
+                currentRotation = 0;
+                currentZoom = 1;
+                panX = 0;
+                panY = 0;
+                applyImageTransform();
+
+                // 6. Gắn cache-buster để trình duyệt nạp lại ảnh mới ngay lập tức
+                const newSrc = `/api/bills/${currentLightboxBillId}/image?t=${Date.now()}`;
+                img.src = newSrc;
+
+                // Cập nhật cả thumbnail trên bảng dữ liệu
+                const thumbImg = document.querySelector(`#tblPendingBody img[src*="${currentLightboxBillId}"]`);
+                if (thumbImg) thumbImg.src = newSrc;
+
+                if (isCropped) {
+                    showToast(`✅ Đã cắt (crop) và lưu đúng vùng hiển thị (${finalCanvas.width}x${finalCanvas.height}px) xuống đĩa cứng thành công!`, 'success');
+                } else {
+                    showToast(`✅ Đã lưu file ảnh (${finalCanvas.width}x${finalCanvas.height}px) xuống đĩa cứng thành công!`, 'success');
+                }
+            } catch (err) {
+                showToast(`❌ Lỗi lưu ảnh: ${err.message}`, 'error');
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = '💾 Lưu Ảnh';
+                }
+            }
+        }
+
+        // Keyboard Shortcuts
+        function initKeyboardShortcuts() {
+            window.addEventListener('keydown', (e) => {
+                const modal = document.getElementById('lightboxModal');
+                if (!modal || modal.style.display !== 'flex') return;
+
+                if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    navigateLightbox(-1);
+                } else if (e.key === 'ArrowRight') {
+                    e.preventDefault();
+                    navigateLightbox(1);
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeLightbox();
+                } else if (e.key === '+' || e.key === '=') {
+                    e.preventDefault();
+                    zoomImage(0.2);
+                } else if (e.key === '-' || e.key === '_') {
+                    e.preventDefault();
+                    zoomImage(-0.2);
+                } else if (e.key === '0') {
+                    e.preventDefault();
+                    resetImageTransform();
+                }
+            });
+        }
+
+        // Raw JSON Modal
+        function viewRawJson(billId) {
+            const cached = ocrResultsCache[billId];
+            if (!cached) return;
+            document.getElementById('jsonModalTitle').innerText = `Raw JSON Response - Bill ${billId}`;
+            document.getElementById('jsonModalBody').innerText = JSON.stringify(cached, null, 2);
+            document.getElementById('jsonModalOverlay').style.display = 'flex';
+        }
+
+        function closeJsonModal(e) {
+            document.getElementById('jsonModalOverlay').style.display = 'none';
+        }
+
+        // ================= GIAI ĐOẠN 3: TAB 2 (BÀN THẨM ĐỊNH & ĐỐI SOÁT - OCRStatus = 1) =================
+
+        // Trạng thái Image Viewer Tab 2 (Zoom, Pan, Rotate)
+        let reviewZoom = 1;
+        let reviewRotate = 0;
+        let reviewPanX = 0;
+        let reviewPanY = 0;
+        let isReviewPanning = false;
+        let reviewStartX = 0;
+        let reviewStartY = 0;
+
+        function applyReviewImgTransform() {
+            const wrapper = document.getElementById('reviewImgWrapper');
+            const zoomBadge = document.getElementById('reviewZoomVal');
+            if (wrapper) {
+                wrapper.style.transform = `translate(${reviewPanX}px, ${reviewPanY}px) rotate(${reviewRotate}deg) scale(${reviewZoom})`;
+            }
+            if (zoomBadge) {
+                zoomBadge.innerText = `${Math.round(reviewZoom * 100)}%`;
+            }
+        }
+
+        function zoomReviewImg(delta) {
+            reviewZoom = Math.max(0.5, Math.min(4.0, reviewZoom + delta));
+            applyReviewImgTransform();
+        }
+
+        function rotateReviewImg(deg) {
+            reviewRotate = (reviewRotate + deg) % 360;
+            applyReviewImgTransform();
+        }
+
+        function resetReviewImg() {
+            reviewZoom = 1;
+            reviewRotate = 0;
+            reviewPanX = 0;
+            reviewPanY = 0;
+            applyReviewImgTransform();
+        }
+
+        function initReviewViewerEvents() {
+            const viewport = document.getElementById('reviewImgViewport');
+            if (!viewport) return;
+
+            // Pan / Drag bằng chuột
+            viewport.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return; // Chỉ chuột trái
+                const img = document.getElementById('reviewBillImage');
+                if (!img || img.style.display === 'none') return;
+                isReviewPanning = true;
+                reviewStartX = e.clientX - reviewPanX;
+                reviewStartY = e.clientY - reviewPanY;
+                viewport.style.cursor = 'grabbing';
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isReviewPanning) return;
+                reviewPanX = e.clientX - reviewStartX;
+                reviewPanY = e.clientY - reviewStartY;
+                applyReviewImgTransform();
+            });
+
+            window.addEventListener('mouseup', () => {
+                if (isReviewPanning) {
+                    isReviewPanning = false;
+                    const viewport = document.getElementById('reviewImgViewport');
+                    if (viewport) viewport.style.cursor = 'grab';
+                }
+            });
+
+            // Wheel zoom
+            viewport.addEventListener('wheel', (e) => {
+                const img = document.getElementById('reviewBillImage');
+                if (!img || img.style.display === 'none') return;
+                e.preventDefault();
+                const delta = e.deltaY < 0 ? 0.15 : -0.15;
+                zoomReviewImg(delta);
+            }, { passive: false });
+        }
+
+        // Tải danh sách Hóa đơn Tab 2 (Chờ thẩm định: OCRStatus = 1 & Reviewed = 0, chia sẻ toàn bộ Filter với Tab 1)
+        async function loadReviewBills() {
+            const listEl = document.getElementById('reviewQueueList');
+            if (listEl) {
+                listEl.innerHTML = '<div style="text-align: center; padding: 40px; color: #94a3b8;"><span class="spinner"></span> Đang tải hàng đợi thẩm định...</div>';
+            }
+
+            try {
+                // Đọc toàn bộ bộ lọc Dùng Chung từ Common Filter Bar
+                const dpFrom = document.getElementById('dpFromDate');
+                const dpTo = document.getElementById('dpToDate');
+                const selBrand = document.getElementById('selBrandFilter');
+                const selOutlet = document.getElementById('selOutletFilter');
+                const txtSearch = document.getElementById('txtSearchPending');
+
+                const fromDateVal = dpFrom ? dpFrom.value : '';
+                const toDateVal = dpTo ? dpTo.value : '';
+                const brandVal = selBrand ? selBrand.value : '';
+                const outletVal = selOutlet ? selOutlet.value : '';
+                const keywordVal = txtSearch ? txtSearch.value.trim() : '';
+
+                // Gọi endpoint lọc theo ocrStatus=true (OCRStatus=1) & reviewed=false với đầy đủ tham số
+                let url = `/api/bills/pending-upload?page=1&pageSize=100&ocrStatus=true&reviewed=false`;
+                if (fromDateVal) url += `&fromDate=${encodeURIComponent(fromDateVal)}`;
+                if (toDateVal) url += `&toDate=${encodeURIComponent(toDateVal)}`;
+                if (brandVal) url += `&brandNumber=${encodeURIComponent(brandVal)}`;
+                if (outletVal) url += `&outletNumber=${encodeURIComponent(outletVal)}`;
+                if (keywordVal) url += `&keyword=${encodeURIComponent(keywordVal)}`;
+
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('Không thể tải hàng đợi thẩm định từ máy chủ.');
+                const data = await res.json();
+                
+                if (data && typeof data === 'object' && Array.isArray(data.items)) {
+                    reviewBills = data.items;
+                    const total = data.totalCount ?? reviewBills.length;
+                    const badgeTop = document.getElementById('badgeReviewCount');
+                    if (badgeTop) badgeTop.innerText = total;
+                    const lblQueue = document.getElementById('lblReviewCount');
+                    if (lblQueue) lblQueue.innerText = total;
+                } else if (Array.isArray(data)) {
+                    reviewBills = data;
+                    const badgeTop = document.getElementById('badgeReviewCount');
+                    if (badgeTop) badgeTop.innerText = reviewBills.length;
+                    const lblQueue = document.getElementById('lblReviewCount');
+                    if (lblQueue) lblQueue.innerText = reviewBills.length;
+                } else {
+                    reviewBills = [];
+                    const badgeTop = document.getElementById('badgeReviewCount');
+                    if (badgeTop) badgeTop.innerText = 0;
+                    const lblQueue = document.getElementById('lblReviewCount');
+                    if (lblQueue) lblQueue.innerText = 0;
+                }
+
+                renderReviewQueue();
+            } catch (err) {
+                console.error(err);
+                showToast('Lỗi tải hàng đợi Tab 2: ' + err.message, 'error');
+                if (listEl) {
+                    listEl.innerHTML = `<div style="text-align: center; padding: 40px; color: #ef4444;">Lỗi tải dữ liệu: ${err.message}</div>`;
+                }
+            }
+        }
+
+        function filterReviewQueue() {
+            renderReviewQueue();
+        }
+
+        function renderReviewQueue() {
+            const listEl = document.getElementById('reviewQueueList');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+
+            const q = (document.getElementById('txtSearchReview')?.value || '').trim().toLowerCase();
+            let displayList = reviewBills;
+            if (q) {
+                displayList = reviewBills.filter(b => 
+                    (b.memID && b.memID.toLowerCase().includes(q)) ||
+                    (b.scannedOutletName && b.scannedOutletName.toLowerCase().includes(q)) ||
+                    (b.scannedOutletNumber && b.scannedOutletNumber.toLowerCase().includes(q)) ||
+                    (b.scannedBillNumber && b.scannedBillNumber.toLowerCase().includes(q))
+                );
+            }
+
+            if (displayList.length === 0) {
+                listEl.innerHTML = q 
+                    ? '<div style="text-align: center; padding: 40px; color: #94a3b8;">Không tìm thấy hóa đơn nào khớp từ khóa.</div>'
+                    : '<div style="text-align: center; padding: 40px; color: #94a3b8;">Không có hóa đơn nào có OCRStatus = 1 chờ thẩm định! 🎉</div>';
+                clearReviewWorkspace();
+                return;
+            }
+
+            displayList.forEach(b => {
+                const bId = b.id || b.ID;
                 const card = document.createElement('div');
-                card.className = 'bill-card' + (selectedBill && selectedBill.id === b.id ? ' active' : '');
-                card.onclick = () => selectBill(b);
+                const selId = selectedReviewBill ? (selectedReviewBill.id || selectedReviewBill.ID) : null;
+                card.className = 'bill-card' + (selId && selId === bId ? ' active' : '');
+                card.onclick = () => selectReviewBill(b);
 
                 const amountFormatted = b.scannedBillTotal ? Number(b.scannedBillTotal).toLocaleString('vi-VN') + ' đ' : 'Chưa rõ';
                 const badgeHtml = b.isAutoApprovable 
-                    ? '<span class="badge-auto">Đủ ĐK tự duyệt</span>'
-                    : '<span class="badge-manual">Duyệt tay</span>';
+                    ? '<span class="badge-auto" title="Đủ điều kiện tự duyệt theo chính sách">Tự duyệt</span>'
+                    : '<span class="badge-manual" title="Cần kiểm toán viên thẩm định duyệt tay">Duyệt tay</span>';
+
+                const timeStr = b.uploadImageDateTime ? new Date(b.uploadImageDateTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) : '';
 
                 card.innerHTML = `
                     <div class="card-row-top">
-                        <span>${new Date(b.uploadImageDateTime).toLocaleTimeString('vi-VN')}</span>
+                        <span>⏰ ${timeStr}</span>
                         ${badgeHtml}
                     </div>
-                    <div class="card-outlet">${b.scannedOutletName || b.scannedOutletNumber || 'Gian hàng không tên'}</div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="card-outlet" title="${b.scannedOutletName || b.scannedOutletNumber || 'Gian hàng'}">${b.scannedOutletName || b.scannedOutletNumber || 'Gian hàng'}</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 4px;">
                         <span class="card-amount">${amountFormatted}</span>
-                        <span style="font-size: 11px; color: #94a3b8;">${b.memID}</span>
+                        <span style="font-size: 11px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">${b.memID || b.memId}</span>
                     </div>
                 `;
                 listEl.appendChild(card);
             });
 
-            if (!selectedBill && currentBills.length > 0) {
-                selectBill(currentBills[0]);
+            // Nếu chưa chọn bill nào hoặc bill đang chọn không còn trong list, tự động chọn bill đầu tiên
+            const selId = selectedReviewBill ? (selectedReviewBill.id || selectedReviewBill.ID) : null;
+            if ((!selectedReviewBill || !displayList.some(b => (b.id || b.ID) === selId)) && displayList.length > 0) {
+                selectReviewBill(displayList[0]);
             }
         }
 
-        function selectBill(b) {
-            selectedBill = b;
-            renderQueue();
-
-            document.getElementById('dispMemID').innerText = b.memID;
-            document.getElementById('dispFullName').innerText = b.customerName || 'N/A';
-            document.getElementById('dispMobile').innerText = b.customerMobile || 'N/A';
-            document.getElementById('dispTier').innerText = b.currentTier || 'SILVER';
-
-            document.getElementById('txtOutlet').value = b.scannedOutletNumber || '';
-            document.getElementById('txtBillNo').value = b.scannedBillNumber || '';
-            document.getElementById('txtTotal').value = b.scannedBillTotal ? parseFloat(b.scannedBillTotal) : 0;
+        async function selectReviewBill(b) {
+            selectedReviewBill = b;
             
-            if (b.scannedBillDateTime) {
-                try {
-                    const dt = new Date(b.scannedBillDateTime);
-                    if (!isNaN(dt.getTime())) {
-                        document.getElementById('txtDate').value = dt.toISOString().slice(0, 16);
-                    } else {
-                        document.getElementById('txtDate').value = new Date().toISOString().slice(0, 16);
-                    }
-                } catch {
-                    document.getElementById('txtDate').value = new Date().toISOString().slice(0, 16);
+            // Cập nhật active card class
+            const cards = document.querySelectorAll('#reviewQueueList .bill-card');
+            const q = (document.getElementById('txtSearchReview')?.value || '').trim().toLowerCase();
+            let displayList = reviewBills;
+            if (q) {
+                displayList = reviewBills.filter(x => 
+                    (x.memID && x.memID.toLowerCase().includes(q)) ||
+                    (x.scannedOutletName && x.scannedOutletName.toLowerCase().includes(q)) ||
+                    (x.scannedOutletNumber && x.scannedOutletNumber.toLowerCase().includes(q)) ||
+                    (x.scannedBillNumber && x.scannedBillNumber.toLowerCase().includes(q))
+                );
+            }
+            cards.forEach((c, idx) => {
+                if (displayList[idx] && (displayList[idx].id || displayList[idx].ID) === (b.id || b.ID)) {
+                    c.classList.add('active');
+                } else {
+                    c.classList.remove('active');
                 }
-            } else {
-                document.getElementById('txtDate').value = new Date().toISOString().slice(0, 16);
+            });
+
+            // 1. Hội viên & Trạng thái (hiển thị trước)
+            document.getElementById('dispMemID').innerText = b.memID || b.memId || '-';
+            document.getElementById('dispFullName').innerText = b.customerName || 'Đang tải...';
+            document.getElementById('dispMobile').innerText = b.customerMobile || 'Đang tải...';
+            document.getElementById('dispTier').innerText = b.currentTier || 'MEMBER';
+
+            const badgePolicy = document.getElementById('dispPolicyBadge');
+            if (badgePolicy) {
+                if (b.isAutoApprovable) {
+                    badgePolicy.style.display = 'inline-block';
+                    badgePolicy.className = 'badge-auto';
+                    badgePolicy.innerText = 'Đủ ĐK Tự Duyệt';
+                } else {
+                    badgePolicy.style.display = 'inline-block';
+                    badgePolicy.className = 'badge-manual';
+                    badgePolicy.innerText = 'Duyệt Tay';
+                }
             }
 
-            const hintEl = document.getElementById('dispPolicyHint');
-            hintEl.innerText = b.autoApproveReason || 'Hợp lệ';
-            hintEl.style.color = b.isAutoApprovable ? '#34d399' : '#fbbf24';
+            // Nạp chi tiết khách hàng nếu chưa có
+            if (!b.customerName) {
+                try {
+                    const detailRes = await fetch(`/api/bills/${b.id || b.ID}`);
+                    if (detailRes.ok) {
+                        const detail = await detailRes.json();
+                        b.customerName = detail.customerName || 'N/A';
+                        b.customerMobile = detail.customerMobile || 'N/A';
+                        b.currentTier = detail.currentTier || 'MEMBER';
+                        b.isAutoApprovable = detail.isAutoApprovable;
+                        b.autoApproveReason = detail.autoApproveReason;
 
-            const imgEl = document.getElementById('billImage');
-            const noImgEl = document.getElementById('noImageText');
-            if (b.imageFileName) {
-                imgEl.src = '/Pictures/' + b.imageFileName;
+                        document.getElementById('dispFullName').innerText = b.customerName;
+                        document.getElementById('dispMobile').innerText = b.customerMobile;
+                        document.getElementById('dispTier').innerText = b.currentTier;
+
+                        if (badgePolicy) {
+                            badgePolicy.style.display = 'inline-block';
+                            badgePolicy.className = b.isAutoApprovable ? 'badge-auto' : 'badge-manual';
+                            badgePolicy.innerText = b.isAutoApprovable ? 'Đủ ĐK Tự Duyệt' : 'Duyệt Tay';
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Lỗi tải chi tiết khách hàng:', e);
+                }
+            }
+
+            // 2. Cột OCR Read-only
+            const dispOcrOutlet = document.getElementById('dispOcrOutlet');
+            const dispOcrBillNo = document.getElementById('dispOcrBillNo');
+            const dispOcrTotal = document.getElementById('dispOcrTotal');
+            const dispOcrDate = document.getElementById('dispOcrDate');
+
+            const outletOcrDisplay = b.scannedOutletName ? `${b.scannedOutletName} (${b.scannedOutletNumber || '?'})` : (b.scannedOutletNumber || '(Chưa rõ)');
+            if (dispOcrOutlet) dispOcrOutlet.innerText = outletOcrDisplay;
+            if (dispOcrBillNo) dispOcrBillNo.innerText = b.scannedBillNumber || '(Chưa rõ)';
+            if (dispOcrTotal) {
+                const totalNum = b.scannedBillTotal ? parseFloat(b.scannedBillTotal) : 0;
+                dispOcrTotal.innerText = totalNum > 0 ? totalNum.toLocaleString('vi-VN') + ' đ' : '(Chưa rõ)';
+            }
+            if (dispOcrDate) {
+                if (b.scannedBillDateTime) {
+                    try {
+                        const dt = new Date(b.scannedBillDateTime);
+                        dispOcrDate.innerText = !isNaN(dt.getTime()) ? dt.toLocaleString('vi-VN') : b.scannedBillDateTime;
+                    } catch {
+                        dispOcrDate.innerText = b.scannedBillDateTime;
+                    }
+                } else {
+                    dispOcrDate.innerText = '(Chưa rõ)';
+                }
+            }
+
+            // 3. Cột Admin Adjust ...A (MẶC ĐỊNH ĐỂ TRỐNG: Admin chỉ nhập khi OCR sai)
+            const txtOutletA = document.getElementById('txtOutletA');
+            const txtBillNoA = document.getElementById('txtBillNoA');
+            const txtTotalA = document.getElementById('txtTotalA');
+            const txtDateA = document.getElementById('txtDateA');
+            const txtReviewNotes = document.getElementById('txtReviewNotes');
+
+            if (txtOutletA) txtOutletA.value = '';
+            if (txtBillNoA) txtBillNoA.value = '';
+            if (txtTotalA) txtTotalA.value = '';
+            if (txtDateA) txtDateA.value = '';
+            if (txtReviewNotes) txtReviewNotes.value = '';
+
+            // 4. Nạp ảnh hóa đơn vào Image Viewer & reset zoom
+            const imgEl = document.getElementById('reviewBillImage');
+            const noImgEl = document.getElementById('reviewNoImageText');
+            if (imgEl) {
+                imgEl.src = `/api/bills/${b.id || b.ID}/image`;
                 imgEl.style.display = 'block';
-                noImgEl.style.display = 'none';
-                imgEl.onerror = () => {
-                    imgEl.src = 'https://placehold.co/400x600/1e293b/f8fafc?text=Hóa+Đơn+' + encodeURIComponent(b.scannedBillNumber || b.id);
-                };
-            } else {
-                imgEl.style.display = 'none';
-                noImgEl.style.display = 'block';
             }
+            if (noImgEl) noImgEl.style.display = 'none';
+            resetReviewImg();
+
+            // 5. Tính toán và cập nhật khối Số liệu chốt (Final Summary Box)
+            updateFinalSummaryUI();
         }
 
-        function clearWorkspace() {
-            selectedBill = null;
+        function clearReviewWorkspace() {
+            selectedReviewBill = null;
             document.getElementById('dispMemID').innerText = '-';
             document.getElementById('dispFullName').innerText = '-';
             document.getElementById('dispMobile').innerText = '-';
             document.getElementById('dispTier').innerText = '-';
-            document.getElementById('txtOutlet').value = '';
-            document.getElementById('txtBillNo').value = '';
-            document.getElementById('txtTotal').value = '';
-            document.getElementById('txtDate').value = '';
-            document.getElementById('billImage').style.display = 'none';
-            document.getElementById('noImageText').style.display = 'block';
+            
+            const badgePolicy = document.getElementById('dispPolicyBadge');
+            if (badgePolicy) badgePolicy.style.display = 'none';
+
+            document.getElementById('dispOcrOutlet').innerText = '-';
+            document.getElementById('dispOcrBillNo').innerText = '-';
+            document.getElementById('dispOcrTotal').innerText = '-';
+            document.getElementById('dispOcrDate').innerText = '-';
+
+            document.getElementById('txtOutletA').value = '';
+            document.getElementById('txtBillNoA').value = '';
+            document.getElementById('txtTotalA').value = '';
+            document.getElementById('txtDateA').value = '';
+            document.getElementById('txtReviewNotes').value = '';
+
+            const imgEl = document.getElementById('reviewBillImage');
+            const noImgEl = document.getElementById('reviewNoImageText');
+            if (imgEl) imgEl.style.display = 'none';
+            if (noImgEl) noImgEl.style.display = 'block';
+
+            updateFinalSummaryUI();
         }
 
+        // ================= HÀM TÍNH TOÁN FINAL DATA (NGUYÊN TẮC: ƯU TIÊN ADMIN NẾU CÓ, KHÔNG CÓ THÌ LẤY OCR) =================
+        function computeFinalBillData(bill) {
+            if (!bill) return null;
+
+            const adminOutlet = document.getElementById('txtOutletA')?.value.trim() || '';
+            const adminBillNo = document.getElementById('txtBillNoA')?.value.trim() || '';
+            const adminTotalStr = document.getElementById('txtTotalA')?.value.trim() || '';
+            const adminDateStr = document.getElementById('txtDateA')?.value.trim() || '';
+
+            // 1. Gian hàng (Outlet)
+            const hasAdminOutlet = adminOutlet !== '';
+            const finalOutlet = hasAdminOutlet ? adminOutlet : (bill.scannedOutletNumber || '');
+            const outletSource = hasAdminOutlet ? 'admin' : 'ocr';
+
+            // 2. Số hóa đơn (Bill Number)
+            const hasAdminBillNo = adminBillNo !== '';
+            const finalBillNo = hasAdminBillNo ? adminBillNo : (bill.scannedBillNumber || '');
+            const billNoSource = hasAdminBillNo ? 'admin' : 'ocr';
+
+            // 3. Tổng tiền thanh toán (Total Amount)
+            let finalTotal = 0;
+            let totalSource = 'ocr';
+            if (adminTotalStr !== '') {
+                finalTotal = parseFloat(adminTotalStr) || 0;
+                totalSource = 'admin';
+            } else {
+                finalTotal = bill.scannedBillTotal ? parseFloat(bill.scannedBillTotal) || 0 : 0;
+                totalSource = 'ocr';
+            }
+
+            // 4. Ngày giờ hóa đơn (DateTime)
+            let finalDateTime = null;
+            let finalDateTimeStr = '';
+            let dateSource = 'ocr';
+            if (adminDateStr !== '') {
+                finalDateTime = new Date(adminDateStr);
+                finalDateTimeStr = adminDateStr;
+                dateSource = 'admin';
+            } else if (bill.scannedBillDateTime) {
+                finalDateTime = new Date(bill.scannedBillDateTime);
+                finalDateTimeStr = bill.scannedBillDateTime;
+                dateSource = 'ocr';
+            }
+
+            return {
+                billId: bill.id || bill.ID,
+                memId: bill.memID || bill.memId,
+                finalOutlet,
+                outletSource,
+                finalBillNo,
+                billNoSource,
+                finalTotal,
+                totalSource,
+                finalDateTime,
+                finalDateTimeStr,
+                dateSource,
+                brandNumber: bill.scannedBrandNumber || ''
+            };
+        }
+
+        // ================= HÀM VALIDATION FINAL DATA RIÊNG BIỆT (TRẢ VỀ BOOLEAN) =================
+        function validateFinalBillData(finalData, options = {}) {
+            if (!finalData) {
+                showToast('⚠️ Vui lòng chọn một hóa đơn từ danh sách để kiểm tra.', 'warning');
+                return false;
+            }
+
+            const {
+                minAmount = 1,
+                maxAmount = 500000000, // Hạn mức tối đa 500 triệu đồng
+                allowFutureDate = false,
+                requireOutlet = true,
+                requireBillNo = true
+            } = options;
+
+            // 1. Kiểm tra Gian hàng
+            if (requireOutlet && (!finalData.finalOutlet || finalData.finalOutlet.trim() === '')) {
+                showToast('❌ Mã gian hàng (Outlet Number) không được để trống.', 'error');
+                const txt = document.getElementById('txtOutletA');
+                if (txt) { txt.focus(); txt.style.borderColor = '#ef4444'; }
+                return false;
+            } else {
+                const txt = document.getElementById('txtOutletA');
+                if (txt) txt.style.borderColor = '';
+            }
+
+            // 2. Kiểm tra Số hóa đơn
+            if (requireBillNo && (!finalData.finalBillNo || finalData.finalBillNo.trim() === '')) {
+                showToast('❌ Số hóa đơn (Bill Number) không được để trống.', 'error');
+                const txt = document.getElementById('txtBillNoA');
+                if (txt) { txt.focus(); txt.style.borderColor = '#ef4444'; }
+                return false;
+            } else {
+                const txt = document.getElementById('txtBillNoA');
+                if (txt) txt.style.borderColor = '';
+            }
+
+            // 3. Kiểm tra Tổng tiền thanh toán
+            if (isNaN(finalData.finalTotal) || finalData.finalTotal < minAmount) {
+                showToast(`❌ Tổng tiền thanh toán phải lớn hơn 0 (tối thiểu ${minAmount.toLocaleString('vi-VN')} đ).`, 'error');
+                const txt = document.getElementById('txtTotalA');
+                if (txt) { txt.focus(); txt.style.borderColor = '#ef4444'; }
+                return false;
+            }
+            if (finalData.finalTotal > maxAmount) {
+                showToast(`❌ Tổng tiền thanh toán vượt quá hạn mức tối đa cho phép (${maxAmount.toLocaleString('vi-VN')} đ).`, 'error');
+                const txt = document.getElementById('txtTotalA');
+                if (txt) { txt.focus(); txt.style.borderColor = '#ef4444'; }
+                return false;
+            } else {
+                const txt = document.getElementById('txtTotalA');
+                if (txt) txt.style.borderColor = '';
+            }
+
+            // 4. Kiểm tra Ngày giờ hóa đơn
+            if (!finalData.finalDateTime || isNaN(finalData.finalDateTime.getTime())) {
+                showToast('❌ Ngày giờ hóa đơn không hợp lệ hoặc để trống.', 'error');
+                const txt = document.getElementById('txtDateA');
+                if (txt) { txt.focus(); txt.style.borderColor = '#ef4444'; }
+                return false;
+            } else {
+                const txt = document.getElementById('txtDateA');
+                if (txt) txt.style.borderColor = '';
+            }
+
+            // Kiểm tra không cho phép ngày trong tương lai (dung sai 5 phút cho lệch đồng hồ máy chủ/client)
+            const now = new Date();
+            const nowWithTolerance = new Date(now.getTime() + 5 * 60 * 1000);
+            if (!allowFutureDate && finalData.finalDateTime > nowWithTolerance) {
+                showToast('❌ Ngày giờ hóa đơn không được lớn hơn thời điểm hiện tại.', 'error');
+                const txt = document.getElementById('txtDateA');
+                if (txt) { txt.focus(); txt.style.borderColor = '#ef4444'; }
+                return false;
+            }
+
+            return true;
+        }
+
+        // ================= CẬP NHẬT GIAO DIỆN FINAL SUMMARY BOX =================
+        function updateFinalSummaryUI() {
+            const finalData = computeFinalBillData(selectedReviewBill);
+            
+            const dispOutlet = document.getElementById('finalDispOutlet');
+            const badgeOutlet = document.getElementById('badgeFinalOutlet');
+            const dispBillNo = document.getElementById('finalDispBillNo');
+            const badgeBillNo = document.getElementById('badgeFinalBillNo');
+            const dispTotal = document.getElementById('finalDispTotal');
+            const badgeTotal = document.getElementById('badgeFinalTotal');
+            const dispDate = document.getElementById('finalDispDate');
+            const badgeDate = document.getElementById('badgeFinalDate');
+
+            if (!finalData) {
+                if (dispOutlet) dispOutlet.innerText = '-';
+                if (dispBillNo) dispBillNo.innerText = '-';
+                if (dispTotal) dispTotal.innerText = '0 đ';
+                if (dispDate) dispDate.innerText = '-';
+                return;
+            }
+
+            // 1. Outlet
+            if (dispOutlet) dispOutlet.innerText = finalData.finalOutlet || '(Trống)';
+            if (badgeOutlet) {
+                badgeOutlet.className = finalData.outletSource === 'admin' ? 'badge-source-admin' : 'badge-source-ocr';
+                badgeOutlet.innerText = finalData.outletSource === 'admin' ? '✏️ Admin' : '🤖 OCR';
+            }
+
+            // 2. Bill No
+            if (dispBillNo) dispBillNo.innerText = finalData.finalBillNo || '(Trống)';
+            if (badgeBillNo) {
+                badgeBillNo.className = finalData.billNoSource === 'admin' ? 'badge-source-admin' : 'badge-source-ocr';
+                badgeBillNo.innerText = finalData.billNoSource === 'admin' ? '✏️ Admin' : '🤖 OCR';
+            }
+
+            // 3. Total
+            if (dispTotal) {
+                dispTotal.innerText = finalData.finalTotal > 0 ? Number(finalData.finalTotal).toLocaleString('vi-VN') + ' đ' : '0 đ';
+            }
+            if (badgeTotal) {
+                badgeTotal.className = finalData.totalSource === 'admin' ? 'badge-source-admin' : 'badge-source-ocr';
+                badgeTotal.innerText = finalData.totalSource === 'admin' ? '✏️ Admin' : '🤖 OCR';
+            }
+
+            // 4. DateTime
+            if (dispDate) {
+                if (finalData.finalDateTime && !isNaN(finalData.finalDateTime.getTime())) {
+                    dispDate.innerText = finalData.finalDateTime.toLocaleString('vi-VN');
+                } else {
+                    dispDate.innerText = '(Trống)';
+                }
+            }
+            if (badgeDate) {
+                badgeDate.className = finalData.dateSource === 'admin' ? 'badge-source-admin' : 'badge-source-ocr';
+                badgeDate.innerText = finalData.dateSource === 'admin' ? '✏️ Admin' : '🤖 OCR';
+            }
+        }
+
+        function onAdminInputChange() {
+            updateFinalSummaryUI();
+        }
+
+        // ================= PHÊ DUYỆT HÓA ĐƠN (GỌI VALIDATION TRƯỚC, NẾU VALID === TRUE MỚI GỌI API) =================
         async function approveBill() {
-            if (!selectedBill) return;
+            if (!selectedReviewBill) {
+                showToast('⚠️ Vui lòng chọn một hóa đơn từ danh sách để phê duyệt.', 'warning');
+                return;
+            }
+
+            // 1. Tính toán số liệu chốt Final theo nguyên tắc ưu tiên
+            const finalData = computeFinalBillData(selectedReviewBill);
+
+            // 2. Chạy hàm kiểm tra validation độc lập (trả về bool)
+            console.log('[VALIDATE] Đang kiểm tra dữ liệu chốt Final trước khi phê duyệt:', finalData);
+            const isValid = validateFinalBillData(finalData);
+            console.log('[VALIDATE] Kết quả kiểm tra:', isValid);
+            if (!isValid) {
+                return; // Ngừng thực hiện nếu validation không đạt
+            }
+
+            // 3. Chuẩn bị payload gửi lên API
+            // NGUYÊN TẮC BẤT BIẾN: CHỈ gửi đúng những gì Admin thực tế nhập vào (Để trống => gửi null)
+            const adminOutletVal = document.getElementById('txtOutletA')?.value.trim() || '';
+            const adminBillNoVal = document.getElementById('txtBillNoA')?.value.trim() || '';
+            const adminTotalVal = document.getElementById('txtTotalA')?.value.trim() || '';
+            const adminDateVal = document.getElementById('txtDateA')?.value.trim() || '';
+            const notes = document.getElementById('txtReviewNotes')?.value.trim() || '';
+
+            let adminDateIso = null;
+            if (adminDateVal !== '') {
+                const parsedDate = new Date(adminDateVal);
+                if (!isNaN(parsedDate.getTime())) {
+                    adminDateIso = parsedDate.toISOString();
+                }
+            }
+
+            const parsedTotalA = adminTotalVal !== '' ? parseFloat(adminTotalVal) : null;
 
             const req = {
-                billId: selectedBill.id,
-                approvedBillNumber: document.getElementById('txtBillNo').value,
-                approvedTotalAmount: parseFloat(document.getElementById('txtTotal').value),
-                approvedBillDateTime: new Date(document.getElementById('txtDate').value).toISOString(),
-                approvedOutletNumber: document.getElementById('txtOutlet').value,
-                approvedBrandNumber: selectedBill.scannedBrandNumber,
+                billId: finalData.billId,
+                // Dữ liệu Admin THỰC TẾ nhập vào (Để trống => null, tuyệt đối KHÔNG tự ý lấy số OCR đè vào đây)
+                outletNumberA: adminOutletVal !== '' ? adminOutletVal : null,
+                billNumberA: adminBillNoVal !== '' ? adminBillNoVal : null,
+                billTotalA: (parsedTotalA !== null && !isNaN(parsedTotalA)) ? parsedTotalA : null,
+                billDateTimeA: adminDateIso,
+                brandNumberA: null,
+
+                // Dữ liệu Final chốt (kết hợp OCR + Admin) phục vụ validation và logic sau này:
+                approvedBillNumber: finalData.finalBillNo,
+                approvedTotalAmount: finalData.finalTotal,
+                approvedBillDateTime: finalData.finalDateTime ? finalData.finalDateTime.toISOString() : new Date().toISOString(),
+                approvedOutletNumber: finalData.finalOutlet,
+                approvedBrandNumber: finalData.brandNumber,
                 reviewBy: 'OperatorWeb',
-                reviewNotes: 'Phê duyệt thủ công qua Web Console.'
+                reviewNotes: notes || (finalData.totalSource === 'admin' || finalData.billNoSource === 'admin' || finalData.outletSource === 'admin'
+                    ? 'Đã điều chỉnh bởi Admin và phê duyệt.'
+                    : 'Phê duyệt theo kết quả OCR chuẩn.')
             };
+
+            const btnApprove = document.getElementById('btnApprove');
+            const originalText = btnApprove ? btnApprove.innerHTML : '✓ Phê duyệt';
+            if (btnApprove) {
+                btnApprove.disabled = true;
+                btnApprove.innerHTML = '<span class="spinner" style="display:inline-block; width:14px; height:14px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite; vertical-align:middle; margin-right:6px;"></span> Đang duyệt...';
+            }
 
             try {
                 const res = await fetch('/api/bills/approve', {
@@ -404,36 +3316,104 @@
                     body: JSON.stringify(req)
                 });
                 const result = await res.json();
-                if (res.ok) {
-                    alert('✅ ' + result.message + (result.isUpgraded ? ` (Chúc mừng hội viên được nâng hạng lên ${result.newTier}!)` : ''));
-                    await loadPendingBills();
+                if (res.ok && result.success) {
+                    showToast('✅ ' + (result.message || 'Đã lưu số liệu Admin và phê duyệt thành công!'), 'success');
+
+                    // Cập nhật danh sách cục bộ ngay để UI mượt mà
+                    reviewBills = reviewBills.filter(b => b.id !== finalData.billId);
+                    selectedReviewBill = null;
+                    renderReviewQueue();
+
+                    // Đồng bộ lại dữ liệu đầy đủ từ server
+                    await loadReviewBills();
+                    if (typeof loadPendingUploadBills === 'function') {
+                        loadPendingUploadBills(pendingCurrentPage);
+                    }
                 } else {
-                    alert('❌ Lỗi phê duyệt: ' + result.message);
+                    showToast('❌ Lỗi phê duyệt: ' + (result.message || 'Thao tác không thành công.'), 'error');
                 }
             } catch (err) {
-                alert('Lỗi kết nối: ' + err.message);
+                showToast('❌ Lỗi kết nối: ' + err.message, 'error');
+            } finally {
+                if (btnApprove) {
+                    btnApprove.disabled = false;
+                    btnApprove.innerHTML = originalText;
+                }
             }
         }
 
+        // ================= TỪ CHỐI HÓA ĐƠN (MODAL TỪ CHỐI) =================
         function openRejectModal() {
-            if (!selectedBill) return;
-            document.getElementById('txtCustomReason').value = document.getElementById('selRejectReason').value;
-            document.getElementById('rejectModal').style.display = 'flex';
+            if (!selectedReviewBill) {
+                showToast('⚠️ Vui lòng chọn một hóa đơn từ danh sách để từ chối.', 'warning');
+                return;
+            }
+
+            const infoBox = document.getElementById('rejectBillInfoBox');
+            if (infoBox) {
+                const outlet = selectedReviewBill.scannedOutletName || selectedReviewBill.scannedOutletNumber || 'N/A';
+                const total = selectedReviewBill.scannedBillTotal ? Number(selectedReviewBill.scannedBillTotal).toLocaleString('vi-VN') + ' đ' : 'Chưa rõ';
+                infoBox.innerHTML = `
+                    <div><strong>Mã Hội Viên:</strong> <span style="color: #38bdf8;">${selectedReviewBill.memID}</span> | <strong>Tên:</strong> ${selectedReviewBill.customerName || 'N/A'}</div>
+                    <div style="margin-top: 4px;"><strong>Gian hàng:</strong> ${outlet} | <strong>Tổng tiền:</strong> <span style="color: #34d399;">${total}</span></div>
+                `;
+            }
+
+            const selTemplate = document.getElementById('selRejectTemplate');
+            if (selTemplate) selTemplate.value = '';
+
+            const txtReason = document.getElementById('txtRejectReason');
+            if (txtReason) {
+                txtReason.value = '';
+                txtReason.style.borderColor = '';
+            }
+
+            const modal = document.getElementById('rejectModal');
+            if (modal) modal.style.display = 'flex';
         }
 
         function closeRejectModal() {
-            document.getElementById('rejectModal').style.display = 'none';
+            const modal = document.getElementById('rejectModal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function onSelectRejectTemplate() {
+            const sel = document.getElementById('selRejectTemplate');
+            const txt = document.getElementById('txtRejectReason');
+            if (sel && txt && sel.value) {
+                txt.value = sel.value;
+                txt.style.borderColor = '';
+            }
         }
 
         async function confirmReject() {
-            const reason = document.getElementById('txtCustomReason').value;
-            if (!reason) { alert('Vui lòng nhập lý do từ chối!'); return; }
+            if (!selectedReviewBill) return;
 
+            const txtReason = document.getElementById('txtRejectReason');
+            const reason = txtReason?.value.trim() || '';
+
+            if (!reason) {
+                showToast('❌ Vui lòng nhập lý do từ chối cụ thể.', 'error');
+                if (txtReason) {
+                    txtReason.focus();
+                    txtReason.style.borderColor = '#ef4444';
+                }
+                return;
+            }
+
+            const billIdVal = selectedReviewBill.id || selectedReviewBill.ID;
             const req = {
-                billId: selectedBill.id,
+                billId: billIdVal,
                 reviewBy: 'OperatorWeb',
                 reason: reason
             };
+
+            const btnConfirm = document.getElementById('btnConfirmReject');
+            const origText = btnConfirm ? btnConfirm.innerHTML : 'Xác nhận từ chối';
+            if (btnConfirm) {
+                btnConfirm.disabled = true;
+                btnConfirm.innerHTML = 'Đang xử lý...';
+            }
 
             try {
                 const res = await fetch('/api/bills/reject', {
@@ -441,36 +3421,64 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(req)
                 });
-                const result = await res.json();
-                if (res.ok) {
-                    alert('Đã từ chối hóa đơn thành công.');
+                let result = null;
+                try {
+                    result = await res.json();
+                } catch (jsonErr) {
+                    result = { success: false, message: 'Phản hồi không hợp lệ từ máy chủ (' + res.status + ')' };
+                }
+
+                if (res.ok && result && result.success) {
+                    showToast('✅ ' + (result.message || 'Đã từ chối hóa đơn và lưu lý do thành công.'), 'success');
                     closeRejectModal();
-                    await loadPendingBills();
+
+                    // Cập nhật danh sách hàng đợi
+                    reviewBills = reviewBills.filter(b => (b.id || b.ID) !== billIdVal);
+                    selectedReviewBill = null;
+                    renderReviewQueue();
+
+                    await loadReviewBills();
+                    if (typeof loadPendingUploadBills === 'function') {
+                        loadPendingUploadBills(pendingCurrentPage);
+                    }
                 } else {
-                    alert('Lỗi: ' + result.message);
+                    showToast('❌ Lỗi từ chối: ' + (result?.message || 'Thao tác không thành công.'), 'error');
                 }
             } catch (err) {
-                alert('Lỗi: ' + err.message);
+                showToast('❌ Lỗi kết nối: ' + err.message, 'error');
+            } finally {
+                if (btnConfirm) {
+                    btnConfirm.disabled = false;
+                    btnConfirm.innerHTML = origText;
+                }
             }
         }
-
-        async function runAutoApprovalBatch() {
+            async function loadEnvironmentConfig() {
             try {
-                const res = await fetch('/api/bills/auto-review?maxBatch=50', { method: 'POST' });
-                const summary = await res.json();
-                alert(`⚡ KẾT QUẢ TỰ DUYỆT THEO LÔ:
+                const res = await fetch('/api/bills/config/environment');
+                if (!res.ok) return;
+                const cfg = await res.json();
 
-- Đã kiểm tra: ${summary.totalEvaluated} bill
-- Tự duyệt thành công: ${summary.totalAutoApproved} bill
-- Chuyển duyệt tay: ${summary.totalManualRequired} bill`);
-                await loadPendingBills();
+                // 1. Tự động điền Từ ngày và Đến ngày từ AppSettings phục vụ debug nhanh
+                const dpFrom = document.getElementById('dpFromDate');
+                const dpTo = document.getElementById('dpToDate');
+                if (cfg && cfg.defaultFromDate && dpFrom) {
+                    dpFrom.value = cfg.defaultFromDate;
+                }
+                if (cfg && cfg.defaultToDate && dpTo) {
+                    dpTo.value = cfg.defaultToDate;
+                }
+
+                // 2. Cập nhật nhãn môi trường CSDL
+                const text = document.getElementById('envBadgeText');
+                if (text && cfg && cfg.label) {
+                    text.innerText = cfg.label;
+                }
             } catch (err) {
-                alert('Lỗi kích hoạt auto-approval: ' + err.message);
+                console.warn('Lỗi lấy thông tin môi trường:', err);
             }
         }
 
-        // Khởi động
-        loadPendingBills();
     </script>
 </body>
 </html>

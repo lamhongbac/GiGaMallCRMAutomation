@@ -11,6 +11,33 @@ namespace CRMMall.BillReview.BLL.Services
     public interface IBillReviewService
     {
         /// <summary>
+        /// Lấy danh sách các hóa đơn vừa upload lên hệ thống nhưng chưa qua bước bóc tách OCR (DataStatus = 'Pending').
+        /// </summary>
+        /// <param name="limit">Số lượng tối đa cần lấy.</param>
+        Task<PagedResultDto<PendingUploadBillDto>> GetPendingUploadBillsPagedAsync(DateTime? fromDate = null, DateTime? toDate = null, int pageIndex = 1, int pageSize = 25);
+        Task<IEnumerable<PendingUploadBillDto>> GetPendingUploadBillsAsync(DateTime? fromDate = null, DateTime? toDate = null, int limit = 50);
+        Task<IEnumerable<PendingBillDto>> GetBillsForReviewAsync(DateTime? fromDate = null, DateTime? toDate = null, int limit = 100);
+
+        /// <summary>
+        /// Thực hiện gọi Server OCR chuyên dụng bóc tách ảnh của một hóa đơn cụ thể.
+        /// </summary>
+        /// <param name="billId">Mã định danh hóa đơn.</param>
+        Task<OcrExtractApiResponse> PerformOcrAsync(Guid billId);
+
+        /// <summary>
+        /// Lưu kết quả bóc tách OCR vào CSDL mssOCRTrialTrans và chuyển trạng thái sang 'OCR'.
+        /// </summary>
+        /// <param name="billId">Mã định danh hóa đơn.</param>
+        /// <param name="request">Dữ liệu bóc tách cần lưu.</param>
+        Task<SaveOcrResultResponse> SaveOcrResultAsync(Guid billId, SaveOcrResultRequest request);
+
+        /// <summary>
+        /// Đọc nội dung file ảnh nhị phân của hóa đơn để phục vụ hiển thị trực tiếp trên giao diện hoặc gửi sang OCR Server.
+        /// </summary>
+        /// <param name="billId">Mã định danh hóa đơn.</param>
+        Task<byte[]?> GetBillImageBytesAsync(Guid billId);
+
+        /// <summary>
         /// Lấy danh sách các hóa đơn bóc tách đang chờ kiểm toán viên đối soát và phê duyệt.
         /// </summary>
         /// <remarks>
@@ -89,5 +116,33 @@ namespace CRMMall.BillReview.BLL.Services
         /// <param name="maxBatchSize">Số lượng hóa đơn xử lý tối đa mỗi lượt quét (mặc định 50).</param>
         /// <returns>Báo cáo tổng kết số lượng duyệt tự động và số lượng chuyển duyệt tay.</returns>
         Task<AutoReviewSummary> RunAutoApprovalBatchAsync(int maxBatchSize = 50);
+
+        /// <summary>
+        /// Truy vấn danh sách hóa đơn phân trang nâng cao hỗ trợ bộ lọc Header chung (Tab 1 và Tab 2).
+        /// </summary>
+        Task<PagedResultDto<PendingUploadBillDto>> GetBillsPagedAsync(
+            DateTime? fromDate = null,
+            DateTime? toDate = null,
+            string? brandNumber = null,
+            string? outletNumber = null,
+            string? keyword = null,
+            bool? ocrStatus = null,
+            bool? reviewed = null,
+            bool? approved = null,
+            int pageIndex = 1,
+            int pageSize = 25);
+
+        /// <summary>
+        /// Lấy danh mục thương hiệu và gian hàng để binding vào bộ lọc Header.
+        /// </summary>
+        Task<FilterOptionsDto> GetFilterOptionsAsync();
+
+        /// <summary>
+        /// Ghi đè trực tiếp tệp ảnh hóa đơn trên đĩa cứng (hỗ trợ lưu ảnh xoay đúng hướng từ Web UI).
+        /// </summary>
+        /// <param name="billId">Mã định danh hóa đơn.</param>
+        /// <param name="imageBytes">Dữ liệu nhị phân của tệp ảnh cần ghi đè.</param>
+        /// <returns>True nếu ghi đè thành công, ngược lại False.</returns>
+        Task<bool> OverwriteBillImageAsync(Guid billId, byte[] imageBytes);
     }
 }
